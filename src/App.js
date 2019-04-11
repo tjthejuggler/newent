@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import firebase from 'firebase' 
 const fbConfig = 
-  {
+  {//testing get stuff
     apiKey: "AIzaSyAz2p24gxOMDp-89VNh1pfkmOUy5mPxf9A",
     authDomain: "newent-a686e.firebaseapp.com",
     databaseURL: "https://newent-a686e.firebaseio.com",
