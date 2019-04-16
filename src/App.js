@@ -17,8 +17,10 @@ const app = firebase.initializeApp(fbConfig)
 const particlesRef = firebase.database().ref('particlesx')
 const myObj = firebase.database().ref('Labs')
 
-var currentQuestionNumber = 0
-var currentQuestion = 'O' //this can be either X or O
+const totalQuestionNumber = 30
+var listOfQuestions = []
+var listOfAnswers = []
+var currentQuestionIndex = 0 //this can be either X or O
 
 var myLabRef
 var myParticle = '-1'
@@ -37,11 +39,14 @@ class App extends Component {
       style_intro: false,
       style_experiment: true,
       style_classic_game: true,
-      style_quantum_game: true
+      style_quantum_game: true,
+      style_navigation_bar: true
     };
     //this.handleChange = this.handleChange.bind(this);
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
     this.showClassicGame = this.showClassicGame.bind(this);
+    this.startNewClassicGame = this.startNewClassicGame.bind(this);
+    this.classicGameAnswer = this.classicGameAnswer.bind(this);
     this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
     this.experiment = this.experiment.bind(this);
@@ -89,7 +94,7 @@ class App extends Component {
     //    the lab objects will have a name, a mode(experiment or game), a current
     //    particle state which describes if/how it has been checked
 
-
+    this.startNewClassicGame()
     this.joinOrCreateLab()
   }
 
@@ -103,7 +108,15 @@ class App extends Component {
   }
 
   startNewClassicGame(e) {
-
+    var i;
+    var oneCount = 0
+    for (i = 0; i < totalQuestionNumber; i++) { 
+      listOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))
+      if (listOfQuestions[i] == 1){oneCount = oneCount+1}
+    }
+    console.log(listOfQuestions)
+    console.log(oneCount)
+    this.setState({style_classic_game: false})
   }
 
   showQuantumGame(e) {
@@ -142,7 +155,12 @@ class App extends Component {
   }
 
   classicGameAnswer(myAnswer){
-    //question number should be in x/y format
+    listOfAnswers[currentQuestionIndex] = myAnswer
+    currentQuestionIndex++
+    this.setState({style_classic_game: false})
+    console.log(listOfAnswers)
+    //once all the questions have been answered, it tells the user who completes first
+    //  that the other is still answering. once both done, they get to see their report
     //after game is complete, the complete results should be shown, every decision that both
     //  players made, whether they were right or wrong, percent win
     //there need not be player to player connection until both players have answered all their questions,
@@ -226,6 +244,8 @@ class App extends Component {
               this.setState({style_intro: false})
               this.setState({style_experiment: true})
               this.setState({style_classic_game: true})
+              this.setState({style_quantum_game: true})
+              this.setState({style_navigation_bar: true})
           }else{
           console.log('labs[myLabRefNum]')
           console.log('myLabRefNum',myLabRefNum)
@@ -301,7 +321,8 @@ class App extends Component {
     })
       if (!labIsFull){
       this.setState({style_intro: true})
-      this.setState({style_experiment: false})     
+      this.setState({style_navigation_bar: false})
+      this.setState({style_classic_game: false})     
     }
   }
 //it could be a walk-through, 
@@ -331,12 +352,18 @@ class App extends Component {
 //    -readout that says measurement results, once both sets of entangled particles have been tested,
 //        readout also gives %coorelation and shows them what would have happened if they had measured
 //        exactly the same 10,000 times (instead of letting them choose a number of particles)
+//TO THINK ABOUT:
+//  -make the experiment section be set up so that either player has their own entangled pair
+//    and they can slide the dials around with a live update on % coorelation so they can each see how
+//    measuring differently effects things
   render() {
     const style = this.state.hideToolTip ? {display: 'none'} : {};
     const style_intro = this.state.style_intro ? {display: 'none'} : {};
     const style_experiment = this.state.style_experiment ? {display: 'none'} : {};
     const style_classic_game = this.state.style_classic_game ? {display: 'none'} : {};
     const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {};
+    const style_navigation_bar = this.state.style_navigation_bar ? {display: 'none'} : {};
+    const multiline = 'first \n third'
     return (
       <div className="App">
       <mode_intro style={style_intro}>
@@ -353,23 +380,26 @@ class App extends Component {
         <label>myMeasurementResult: {myMeasurementResult}</label><br></br>
         <button onClick={()=>this.doMeasurement(0)}>measureA</button>
         <button onClick={()=>this.doMeasurement(1)}>measureB</button>
-        <button onClick={this.createEntanglement}>entanglement</button><br></br><br></br>
-        <button onClick={this.showClassicGame}>classic game</button>
-        <button onClick={this.showQuantumGame}>quantum game</button>
+        <button onClick={this.createEntanglement}>entanglement</button>
       </mode_experiment>
       <mode_classic_game style={style_classic_game}>
         <button onClick={this.startNewClassicGame}>Start new game</button><br></br><br></br>
-        <label>Question number: {currentQuestionNumber}</label><br></br>
-        <label>Question: {currentQuestion}</label><br></br>
+        <label>Question number: {currentQuestionIndex} / {totalQuestionNumber}</label><br></br>
+        <label>Question: {listOfQuestions[currentQuestionIndex]}</label><br></br>
         <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
-        <button onClick={this.experiment}>experiment</button>
-        <button onClick={this.showQuantumGame}>quantum game</button>
+        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button>
       </mode_classic_game>
       <mode_quantum_game style={style_quantum_game}>
-        <button onClick={this.experiment}>experiment</button>
-        <button onClick={this.showClassicGame}>classic game</button>
       </mode_quantum_game>
+      <navigation_bar style={style_navigation_bar}>
+        <br></br><br></br>
+        <button onClick={this.showClassicGame}>classic game</button>
+        <button onClick={this.experiment}>experiment</button>
+        <button onClick={this.showQuantumGame}>quantum game</button><br></br>   
+        <label>{multiline.split("\n").map((i,key) => {
+            return <div key={key}>{i}</div>;
+        })}</label>
+      </navigation_bar>
       </div>
     );
   }
