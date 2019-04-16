@@ -16,6 +16,10 @@ const fbConfig =
 const app = firebase.initializeApp(fbConfig)
 const particlesRef = firebase.database().ref('particlesx')
 const myObj = firebase.database().ref('Labs')
+
+var currentQuestionNumber = 0
+var currentQuestion = 'O' //this can be either X or O
+
 var myLabRef
 var myParticle = '-1'
 var myLab = "none"
@@ -30,24 +34,26 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
-      hideToolTip: false,
       style_intro: false,
       style_experiment: true,
-      style_game: true
+      style_classic_game: true,
+      style_quantum_game: true
     };
-    this.handleChange = this.handleChange.bind(this);
+    //this.handleChange = this.handleChange.bind(this);
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
-    this.experimentButtonClicked = this.experimentButtonClicked.bind(this);
+    this.showClassicGame = this.showClassicGame.bind(this);
+    this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
+    this.experiment = this.experiment.bind(this);
     //this.doMeasurementA = this.doMeasurementA.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
-    this.tooltipInstance = (
-      <div onClick ={this.handleChange}>
-        <button placement="bottom" className="in" id="tooltip-bottom">
-        Tooltip bottom
-        </button>
-      </div>
-      );
+    //this.tooltipInstance = (
+      // <div onClick ={this.handleChange}>
+      //   <button placement="bottom" className="in" id="tooltip-bottom">
+      //   Tooltip bottom
+      //   </button>
+      // </div>
+      //);
   }
 
   // Things to do before unloading/closing the tab
@@ -73,12 +79,6 @@ class App extends Component {
         });
     };
 
-    componentDidMount() {
-        // Activate the event listener
-        
-    }
-
-
   handleIntroSubmit(e) {
     //alert('The value is: ' + this.input.value);
     myLab = this.input.value
@@ -93,12 +93,36 @@ class App extends Component {
     this.joinOrCreateLab()
   }
 
-  experimentButtonClicked(e) {
+  showClassicGame(e) {
       //increment particles current value by one
       e.preventDefault();
-      console.log("experimentButtonClicked")
+      console.log("showClassicGame")
       this.setState({style_experiment: true})
-      this.setState({style_game: false})
+      this.setState({style_classic_game: false})
+      this.setState({style_quantum_game: true})
+  }
+
+  startNewClassicGame(e) {
+
+  }
+
+  showQuantumGame(e) {
+      //increment particles current value by one
+      e.preventDefault();
+      console.log("showClassicGame")
+      this.setState({style_experiment: true})
+      this.setState({style_classic_game: true})
+      this.setState({style_quantum_game: false})
+  }
+
+  experiment(e) {
+      //increment particles current value by one
+      e.preventDefault();
+      console.log("experiment")
+      this.setState({style_experiment: false})
+      this.setState({style_classic_game: true})
+      this.setState({style_quantum_game: true})      
+
   }
 
 
@@ -115,6 +139,16 @@ class App extends Component {
       //iHaveMeasured = false
     })
     this.setState({style_experiment: false})
+  }
+
+  classicGameAnswer(myAnswer){
+    //question number should be in x/y format
+    //after game is complete, the complete results should be shown, every decision that both
+    //  players made, whether they were right or wrong, percent win
+    //there need not be player to player connection until both players have answered all their questions,
+    //  the player should keep track of all their questions and answers locally, once all questions
+    //  are answered, they can be sent to the server where they are shared with the other player,
+    //  and then both players see the results
   }
 
     doMeasurement(myMeasurementType){
@@ -140,14 +174,13 @@ class App extends Component {
             do_cos_squared_3_pi_over_8_measurement = true
           }        
         }
+        var randomNum=Math.random()
         if (do_cos_squared_pi_over_8_measurement){
-              var randomNum=Math.random()
-              console.log('randomNum',randomNum)
+              console.log('randomNum1',randomNum)
               if(randomNum < 0.8536) {myMeasurementResult = particleStateNumber.charAt(0)}
               else {myMeasurementResult = (particleStateNumber.charAt(0)+1)%2}
         }else if(do_cos_squared_3_pi_over_8_measurement){
-              var randomNum=Math.random()
-              console.log('randomNum',randomNum)
+              console.log('randomNum2',randomNum)
               if(randomNum < 0.1464) {myMeasurementResult = particleStateNumber.charAt(0)}
               else {myMeasurementResult = (particleStateNumber.charAt(0)+1)%2}
         }
@@ -163,9 +196,9 @@ class App extends Component {
 
 
 
-  handleChange(event){
-    this.setState({hideToolTip: true})
-  }
+  // handleChange(event){
+  //   this.setState({hideToolTip: true})
+  // }
 
 
     deleteLab = () => {
@@ -192,7 +225,7 @@ class App extends Component {
               this.deleteLab()
               this.setState({style_intro: false})
               this.setState({style_experiment: true})
-              this.setState({style_game: true})
+              this.setState({style_classic_game: true})
           }else{
           console.log('labs[myLabRefNum]')
           console.log('myLabRefNum',myLabRefNum)
@@ -204,7 +237,7 @@ class App extends Component {
           //console.log('labs[myLabRefNum].playerTwo',labs[myLabRefNum].playerTwo)
         if (labs[myLabRefNum].playerTwo == 'Bob'){
           scientistCount = '2'
-          this.setState({style_game: false})
+          this.setState({style_classic_game: false})
       }else{
         scientistCount = '1'
       }
@@ -228,7 +261,7 @@ class App extends Component {
       particlesRef.set(newValue)
       console.log("take turn")
       this.setState({style_experiment: true})
-      this.setState({style_game: false})
+      this.setState({style_classic_game: false})
     })       
   }
   joinOrCreateLab=()=>{
@@ -302,7 +335,8 @@ class App extends Component {
     const style = this.state.hideToolTip ? {display: 'none'} : {};
     const style_intro = this.state.style_intro ? {display: 'none'} : {};
     const style_experiment = this.state.style_experiment ? {display: 'none'} : {};
-    const style_game = this.state.style_game ? {display: 'none'} : {};
+    const style_classic_game = this.state.style_classic_game ? {display: 'none'} : {};
+    const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {};
     return (
       <div className="App">
       <mode_intro style={style_intro}>
@@ -317,14 +351,25 @@ class App extends Component {
         <label>Scientist count: {scientistCount}</label><br></br>
         <label>Particle state: {myParticle}</label><br></br>
         <label>myMeasurementResult: {myMeasurementResult}</label><br></br>
-        <button onClick={this.experimentButtonClicked}>experiment</button>
         <button onClick={()=>this.doMeasurement(0)}>measureA</button>
         <button onClick={()=>this.doMeasurement(1)}>measureB</button>
-        <button onClick={this.createEntanglement}>entanglement</button>
+        <button onClick={this.createEntanglement}>entanglement</button><br></br><br></br>
+        <button onClick={this.showClassicGame}>classic game</button>
+        <button onClick={this.showQuantumGame}>quantum game</button>
       </mode_experiment>
-      <mode_game style={style_game}>
-        <button onClick={this.takeTurn}>game</button>
-      </mode_game>
+      <mode_classic_game style={style_classic_game}>
+        <button onClick={this.startNewClassicGame}>Start new game</button><br></br><br></br>
+        <label>Question number: {currentQuestionNumber}</label><br></br>
+        <label>Question: {currentQuestion}</label><br></br>
+        <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
+        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+        <button onClick={this.experiment}>experiment</button>
+        <button onClick={this.showQuantumGame}>quantum game</button>
+      </mode_classic_game>
+      <mode_quantum_game style={style_quantum_game}>
+        <button onClick={this.experiment}>experiment</button>
+        <button onClick={this.showClassicGame}>classic game</button>
+      </mode_quantum_game>
       </div>
     );
   }
