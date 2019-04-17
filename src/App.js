@@ -16,7 +16,7 @@ const fbConfig =
 const app = firebase.initializeApp(fbConfig)
 const myObj = firebase.database().ref('Labs')
 
-const totalQuestionNumber = 30
+const totalQuestionNumber = 10
 var listOfQuestions = []
 var listOfAnswers = []
 var currentQuestionIndex = 0 //this can be either X or O
@@ -87,6 +87,7 @@ class App extends Component {
 
   startNewClassicGame(e) {
     current_mode = 'classicGame'
+    currentQuestionIndex = 0
     var i;
     var oneCount = 0
     for (i = 0; i < totalQuestionNumber; i++) { 
@@ -101,9 +102,11 @@ class App extends Component {
     }
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      if (updatedLabList[myLabRefNum].playerTwo == 'Bob'){
-        updatedLabList[myLabRefNum].gameQuestions = []
-        updatedLabList[myLabRefNum].gameAnswers = []
+      if (updatedLabList[myLabRefNum].playerOne == 'Bob'){
+        updatedLabList[myLabRefNum].playerZeroGameQuestions = []
+        updatedLabList[myLabRefNum].playerZeroGameAnswers = []
+        updatedLabList[myLabRefNum].playerOneGameQuestions = []
+        updatedLabList[myLabRefNum].playerOneGameAnswers = []
         current_status = 'Begin playing game'
       }else{
           if (current_mode === 'classicGame'){
@@ -133,8 +136,6 @@ class App extends Component {
   }
 
   createEntanglement(){
-//e.preventDefault();
-
     myObj.transaction(function(currentValue){
       console.log('currentValue',currentValue)
       var updatedLabList = currentValue
@@ -147,12 +148,40 @@ class App extends Component {
   }
 
   classicGameAnswer(myAnswer){
+    //todo: dont let the user click the answer buttons if they have already answered all the questions
+    //    this could be done by making the buttons be gone or by making an alert when a button is clicked
+    myObj.transaction(function(currentValue){
+    var updatedLabList = currentValue
     listOfAnswers[currentQuestionIndex] = myAnswer
     currentQuestionIndex++
-    this.setState({style_classic_game: false})
-    console.log(listOfAnswers)
+    if (currentQuestionIndex === totalQuestionNumber){
+      //once enough questions are answered, add them to the db
+        console.log('currentValue',currentValue)
+        var updatedLabList = currentValue
+        if (myNumber == 0){
+          updatedLabList[myLabRefNum].playerZeroGameQuestions = listOfQuestions
+          updatedLabList[myLabRefNum].playerZeroGameAnswers = listOfAnswers
+          if (updatedLabList[myLabRefNum].playerOneGameAnswers){
+            current_status = 'show results'
+          }else{
+            current_status = 'waiting for other player to finish'
+          }
+        }
+        if (myNumber == 1){
+          updatedLabList[myLabRefNum].playerOneGameQuestions = listOfQuestions
+          updatedLabList[myLabRefNum].playerOneGameAnswers = listOfAnswers
+          if (updatedLabList[myLabRefNum].playerZeroGameAnswers){
+            current_status = 'show results'
+            console.log('show results')
+          }else{
+            current_status = 'waiting for other player to finish'
+            console.log('waiting for other player to join')
+          }
+        }
+        myObj.set(updatedLabList)
+    }
 
-//once enough questions are answered, add them to the db
+
 
     //once all the questions have been answered, it tells the user who completes first
     //  that the other is still answering. once both done, they get to see their report
@@ -165,6 +194,8 @@ class App extends Component {
     //  the player should keep track of all their questions and answers locally, once all questions
     //  are answered, they can be sent to the server where they are shared with the other player,
     //  and then both players see the results
+        })
+    this.setState({style_classic_game: false})
   }
 
     doMeasurement(myMeasurementType){
@@ -211,12 +242,10 @@ class App extends Component {
     deleteLab = () => {
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      //updatedLabList[myLabRefNum].labClosed = 'true'
       delete updatedLabList[myLabRefNum];
       myObj.set(updatedLabList)
-      //iHaveMeasured = false
     })
-}
+  }
 
   componentDidMount(){
     this.setupBeforeUnloadListener()
@@ -226,7 +255,6 @@ class App extends Component {
       if (labs){
         console.log('labs',labs)
         if (labs[myLabRefNum]){
-          //console.log('labs[myLabRefNum].isClosed',labs[myLabRefNum].isClosed)
           if (labs[myLabRefNum].labClosed == 'true'){
               console.log('lab is being deleted')
               this.deleteLab()
@@ -236,33 +264,28 @@ class App extends Component {
               this.setState({style_quantum_game: true})
               this.setState({style_navigation_bar: true})
           }else{
-          console.log('labs[myLabRefNum]')
-          console.log('myLabRefNum',myLabRefNum)
-          myParticle = labs[myLabRefNum].particle
-          if (myParticle == '-1'){
-            iHaveMeasured = false
-            myMeasurementResult = '-1'
+            console.log('labs[myLabRefNum]')
+            console.log('myLabRefNum',myLabRefNum)
+            myParticle = labs[myLabRefNum].particle
+            if (myParticle == '-1'){
+              iHaveMeasured = false
+              myMeasurementResult = '-1'
+            }
+            if (labs[myLabRefNum].playerOne == 'Bob'){
+              scientistCount = '2'
+            if (current_mode === 'classicGame'){
+                if (!listOfAnswers){
+                current_status = 'Begin playing game'
+              } if (labs[myLabRefNum].playerZeroGameAnswers && labs[myLabRefNum].playerOneGameAnswers){
+                current_status = 'show the results'
+              }
+            }
+              this.setState({style_classic_game: false})
+            }else{
+              scientistCount = '1'
+              this.setState({style_classic_game: true})
+            }
           }
-          //console.log('labs[myLabRefNum].playerTwo',labs[myLabRefNum].playerTwo)
-        if (labs[myLabRefNum].playerTwo == 'Bob'){
-          scientistCount = '2'
-        if (current_mode === 'classicGame'){
-          current_status = 'Begin playing game'
-        }
-
-
-          this.setState({style_classic_game: false})
-
-      }else{
-        scientistCount = '1'
-        this.setState({style_classic_game: true})
-      }
-    }
-    // else{
-    //   console.log('labs[myLabRefNum] doesnt exist')
-    //   this.setState({style_intro: false})
-    //   this.setState({style_experiment: true})
-    // }
         }
       }
     })
@@ -278,13 +301,13 @@ class App extends Component {
          var lab
          for (lab in currentValue){
           if (currentValue[lab].name == myLab){
-            if (currentValue[lab].playerTwo == 'Bob'){
+            if (currentValue[lab].playerOne == 'Bob'){
             console.log("Lab is full")
             labIsFull = true
             }else{
             console.log("You Joined Lab:",myLab)
             myNumber = 1
-            currentValue[lab].playerTwo = 'Bob'
+            currentValue[lab].playerOne = 'Bob'
             myName = 'Bob'
             createNewLab = false
           }
@@ -293,12 +316,14 @@ class App extends Component {
       }
     if (createNewLab){
       var listObjList = { name: myLab, 
-                          playerOne: 'Alice',
-                           playerTwo: 'None',
-                            particle: '-1',
-                             labClosed: 'false',
-                              gameQuestions: [],
-                                gameAnswers: []};
+                          playerZero: 'Alice',
+                          playerOne: 'None',
+                          particle: '-1',
+                          labClosed: 'false',
+                          playerZeroGameQuestions: [],
+                          playerZeroGameAnswers: [],
+                          playerOneGameQuestions: [],
+                          playerOneGameAnswers: []};
       myNumber = 0
       myName = 'Alice'
       currentLabsList.push(listObjList)
