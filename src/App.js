@@ -3,6 +3,10 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import firebase from 'firebase' 
+
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 
   {//testing get stuff again
@@ -16,14 +20,14 @@ const fbConfig =
 const app = firebase.initializeApp(fbConfig)
 const myObj = firebase.database().ref('Labs')
 
-const totalQuestionNumber = 10
+const highestQuestionIndex = 10
 var listOfQuestions = []
 var listOfAnswers = []
 var currentQuestionIndex = 0 //this can be either X or O
 
 var myLabRef
 var myParticle = '-1'
-var myLab = "none"
+var myLab = 'none'
 var myLabRefNum = -1
 var myNumber = -1
 var myName = 'none'
@@ -42,7 +46,17 @@ class App extends Component {
       style_experiment: true,
       style_classic_game: true,
       style_quantum_game: true,
-      style_navigation_bar: true
+      style_navigation_bar: true,
+      columnDefs: [
+                {headerName: 'Alice Q', field: 'aliceQ', width:75},
+                {headerName: 'Bob Q', field: 'bobQ', width:75},
+                {headerName: 'Alice A', field: 'aliceA', width:75},
+                {headerName: 'Bob A', field: 'bobA', width:75},
+                {headerName: 'Result', field: 'result', width:75}
+                //{headerName: 'Price2', field: 'price2'}
+
+            ],
+            resultsGridRowData: []
     };
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
     this.showClassicGame = this.showClassicGame.bind(this);
@@ -50,7 +64,7 @@ class App extends Component {
     this.classicGameAnswer = this.classicGameAnswer.bind(this);
     this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
-    this.experiment = this.experiment.bind(this);
+    this.showExperiment = this.showExperiment.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
   }
     doSomethingBeforeUnload = () => {
@@ -75,64 +89,77 @@ class App extends Component {
     this.startNewClassicGame()
   }
 
-  showClassicGame(e) {
-      e.preventDefault();
-      console.log("showClassicGame")
-      this.setState({style_experiment: true})
-      if (scientistCount == 2){
-      this.setState({style_classic_game: false})
-    }
-      this.setState({style_quantum_game: true})
-  }
+
 
   startNewClassicGame(e) {
-    current_mode = 'classicGame'
+    current_mode = 'Classic Game'
     currentQuestionIndex = 0
     var i;
     var oneCount = 0
-    for (i = 0; i < totalQuestionNumber; i++) { 
+    var showAnswerButtons = false
+    for (i = 0; i < highestQuestionIndex; i++) { 
       listOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))
       if (listOfQuestions[i] == 1){oneCount = oneCount+1}
     }
     console.log(listOfQuestions)
     console.log(oneCount)
     iHaveMeasured = false
-    if (scientistCount == 2){
-      this.setState({style_classic_game: false})
-    }
+    
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
       if (updatedLabList[myLabRefNum].playerOne == 'Bob'){
-        updatedLabList[myLabRefNum].playerZeroGameQuestions = []
-        updatedLabList[myLabRefNum].playerZeroGameAnswers = []
-        updatedLabList[myLabRefNum].playerOneGameQuestions = []
-        updatedLabList[myLabRefNum].playerOneGameAnswers = []
+        updatedLabList[myLabRefNum].aliceGameQuestions = []
+        updatedLabList[myLabRefNum].aliceGameAnswers = []
+        updatedLabList[myLabRefNum].bobGameQuestions = []
+        updatedLabList[myLabRefNum].bobGameAnswers = []
         current_status = 'Begin playing game'
+        showAnswerButtons = true
       }else{
-          if (current_mode === 'classicGame'){
+          if (current_mode === 'Classic Game'){
           current_status = 'Waiting for other player to join'
         }
       }
       myObj.set(updatedLabList)
     })
+    if (showAnswerButtons){
+      this.setState({style_classic_game: false})
+    }
+  }
+
+  showClassicGame(e) {
+    if (current_mode != 'Classic Game'){
+        e.preventDefault();
+        console.log("showClassicGame")
+        
+        if (scientistCount == 2){
+          this.setState({style_classic_game: false})
+        }
+        this.setState({style_experiment: true})
+        this.setState({style_quantum_game: true})
+        this.setState({style_navigation_bar: false})
+    }
   }
 
   showQuantumGame(e) {
+    if (current_mode != 'Quantum Game'){
       e.preventDefault();
       console.log("showClassicGame")
-      current_mode = 'quantumGame'
+      current_mode = 'Quantum Game'
       this.setState({style_experiment: true})
       this.setState({style_classic_game: true})
       this.setState({style_quantum_game: false})
+      this.setState({style_navigation_bar: false})
+    }
   }
 
-  experiment(e) {
+  showExperiment(e) {
       e.preventDefault();
       console.log("experiment")
-      current_mode = 'experiment'
+      current_mode = "Experiment"
       this.setState({style_experiment: false})
       this.setState({style_classic_game: true})
       this.setState({style_quantum_game: true})
+      this.setState({style_navigation_bar: false})
   }
 
   createEntanglement(){
@@ -150,27 +177,30 @@ class App extends Component {
   classicGameAnswer(myAnswer){
     //todo: dont let the user click the answer buttons if they have already answered all the questions
     //    this could be done by making the buttons be gone or by making an alert when a button is clicked
+    //    -look through the notes scattered around and clean them up
+    
+    if (currentQuestionIndex < highestQuestionIndex){
     myObj.transaction(function(currentValue){
     var updatedLabList = currentValue
     listOfAnswers[currentQuestionIndex] = myAnswer
     currentQuestionIndex++
-    if (currentQuestionIndex === totalQuestionNumber){
+    if (currentQuestionIndex === highestQuestionIndex){
       //once enough questions are answered, add them to the db
         console.log('currentValue',currentValue)
         var updatedLabList = currentValue
         if (myNumber == 0){
-          updatedLabList[myLabRefNum].playerZeroGameQuestions = listOfQuestions
-          updatedLabList[myLabRefNum].playerZeroGameAnswers = listOfAnswers
-          if (updatedLabList[myLabRefNum].playerOneGameAnswers){
+          updatedLabList[myLabRefNum].aliceGameQuestions = listOfQuestions
+          updatedLabList[myLabRefNum].aliceGameAnswers = listOfAnswers
+          if (updatedLabList[myLabRefNum].bobGameAnswers){
             current_status = 'show results'
           }else{
             current_status = 'waiting for other player to finish'
           }
         }
         if (myNumber == 1){
-          updatedLabList[myLabRefNum].playerOneGameQuestions = listOfQuestions
-          updatedLabList[myLabRefNum].playerOneGameAnswers = listOfAnswers
-          if (updatedLabList[myLabRefNum].playerZeroGameAnswers){
+          updatedLabList[myLabRefNum].bobGameQuestions = listOfQuestions
+          updatedLabList[myLabRefNum].bobGameAnswers = listOfAnswers
+          if (updatedLabList[myLabRefNum].aliceGameAnswers){
             current_status = 'show results'
             console.log('show results')
           }else{
@@ -196,6 +226,7 @@ class App extends Component {
     //  and then both players see the results
         })
     this.setState({style_classic_game: false})
+    }
   }
 
     doMeasurement(myMeasurementType){
@@ -251,7 +282,6 @@ class App extends Component {
     this.setupBeforeUnloadListener()
     myObj.on("value",(snapshot)=>{
       const labs = snapshot.val()
-      console.log("ran for bob")
       if (labs){
         console.log('labs',labs)
         if (labs[myLabRefNum]){
@@ -273,13 +303,37 @@ class App extends Component {
             }
             if (labs[myLabRefNum].playerOne == 'Bob'){
               scientistCount = '2'
-            if (current_mode === 'classicGame'){
-                if (!listOfAnswers){
+            if (current_mode === 'Classic Game'){
+              if (!listOfAnswers){
                 current_status = 'Begin playing game'
-              } if (labs[myLabRefNum].playerZeroGameAnswers && labs[myLabRefNum].playerOneGameAnswers){
-                current_status = 'show the results'
-              }
-            }
+                } 
+              if (labs[myLabRefNum].aliceGameAnswers && labs[myLabRefNum].bobGameAnswers){
+                  current_status = 'show the results'
+                  const aliceAnswers = labs[myLabRefNum].aliceGameAnswers
+                  const aliceQuestions = labs[myLabRefNum].aliceGameQuestions
+                  const bobAnswers = labs[myLabRefNum].bobGameAnswers
+                  const bobQuestions = labs[myLabRefNum].bobGameQuestions
+                  var gridData = []
+                  var i
+                  for (i = 0; i < highestQuestionIndex; i++) { 
+                      var currentResult = 'wrong'
+                      if (aliceQuestions[i]*bobQuestions[i]==(aliceAnswers[i]+bobAnswers[i])%2){
+                      currentResult = 'right'
+                    }
+                        gridData.push({ aliceQ: aliceQuestions[i], 
+                                        bobQ: bobQuestions[i], 
+                                        aliceA: aliceAnswers[i], 
+                                        bobA: bobAnswers[i],
+                                        result: currentResult   })
+                      }
+                  // console.log('in this2')
+                  // var gridData=[  {aliceA: 'Toyota'},
+                  //           {aliceA: 'Ford'},
+                  //           {aliceA: 'Porsche'}]
+                  this.setState({resultsGridRowData: gridData}) 
+                  this.setState({style_navigation_bar: false})
+                }
+              }           
               this.setState({style_classic_game: false})
             }else{
               scientistCount = '1'
@@ -310,9 +364,9 @@ class App extends Component {
             currentValue[lab].playerOne = 'Bob'
             myName = 'Bob'
             createNewLab = false
+            }
           }
-          }
-         }
+        }
       }
     if (createNewLab){
       var listObjList = { name: myLab, 
@@ -320,14 +374,13 @@ class App extends Component {
                           playerOne: 'None',
                           particle: '-1',
                           labClosed: 'false',
-                          playerZeroGameQuestions: [],
-                          playerZeroGameAnswers: [],
-                          playerOneGameQuestions: [],
-                          playerOneGameAnswers: []};
+                          aliceGameQuestions: [],
+                          aliceGameAnswers: [],
+                          bobGameQuestions: [],
+                          bobGameAnswers: []};
       myNumber = 0
       myName = 'Alice'
       currentLabsList.push(listObjList)
-
     }
       myLabRefNum = currentLabsList.length-1
       console.log("myLabRefNum", myLabRefNum)
@@ -336,6 +389,7 @@ class App extends Component {
     })
       if (!labIsFull){
       this.setState({style_intro: true})
+      console.log('lab not full')
       this.setState({style_navigation_bar: false})
       if (scientistCount == 2){
         this.setState({style_classic_game: false})           
@@ -383,6 +437,8 @@ class App extends Component {
     const multiline = 'first \n third'
     return (
       <div className="App">
+      <navigation_bar style={style_navigation_bar}>
+        Current mode: {current_mode}<br></br><br></br></navigation_bar>
       <mode_intro style={style_intro}>
         <form onSubmit={this.handleIntroSubmit}>
           <label>Lab Name:<input type="text" ref={(input) => this.input = input} /></label>
@@ -398,24 +454,39 @@ class App extends Component {
       </mode_experiment>
       <mode_classic_game style={style_classic_game}>
         <button onClick={this.startNewClassicGame}>Start new game</button><br></br><br></br>
-        <label>Question number: {currentQuestionIndex} / {totalQuestionNumber}</label><br></br>
+        <label>Question number: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>
         <label>Question: {listOfQuestions[currentQuestionIndex]}</label><br></br>
         <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button>
+        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+
+            <div
+                className="ag-theme-balham"
+                style={{ height: '200px', width: '400px' }}>
+                <AgGridReact
+                    columnDefs={this.state.columnDefs}
+                    rowData={this.state.resultsGridRowData}>
+                </AgGridReact>
+            </div>
+
       </mode_classic_game>
       <mode_quantum_game style={style_quantum_game}>
       </mode_quantum_game>
+      <game_results style={style_navigation_bar}>
+      </game_results>
       <navigation_bar style={style_navigation_bar}>
-        <br></br><br></br>
+        <br></br><br></br><br></br><br></br><br></br><br></br>
+        <label>Status: {current_status}</label><br></br>
+        <label>Lab Name: {myLab} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
         <button onClick={this.showClassicGame}>classic game</button>
-        <button onClick={this.experiment}>experiment</button>
-        <button onClick={this.showQuantumGame}>quantum game</button><br></br>
-        <label>Lab Name: {myLab} My Name: {myName} Scientist count: {scientistCount}</label><br></br>   
-        <label>Status: {current_status}</label>
+        <button onClick={this.showExperiment}>experiment</button>
+        <button onClick={this.showQuantumGame}>quantum game</button>
+        <br></br><br></br><br></br><br></br>
         <label>{multiline.split("\n").map((i,key) => {
             return <div key={key}>{i}</div>;
         })}</label>
       </navigation_bar>
+
+
       </div>
     );
   }
