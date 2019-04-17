@@ -14,7 +14,6 @@ const fbConfig =
     messagingSenderId: "904946277128"
   }
 const app = firebase.initializeApp(fbConfig)
-const particlesRef = firebase.database().ref('particlesx')
 const myObj = firebase.database().ref('Labs')
 
 const totalQuestionNumber = 30
@@ -32,6 +31,9 @@ var myMeasurementResult = -1
 var iHaveMeasured = false
 var scientistCount = 0
 
+var current_mode = 'intro'
+var current_status = 'welcome'
+
 class App extends Component {
   constructor(){
     super();
@@ -42,7 +44,6 @@ class App extends Component {
       style_quantum_game: true,
       style_navigation_bar: true
     };
-    //this.handleChange = this.handleChange.bind(this);
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
     this.showClassicGame = this.showClassicGame.bind(this);
     this.startNewClassicGame = this.startNewClassicGame.bind(this);
@@ -50,34 +51,17 @@ class App extends Component {
     this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
     this.experiment = this.experiment.bind(this);
-    //this.doMeasurementA = this.doMeasurementA.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
-    //this.tooltipInstance = (
-      // <div onClick ={this.handleChange}>
-      //   <button placement="bottom" className="in" id="tooltip-bottom">
-      //   Tooltip bottom
-      //   </button>
-      // </div>
-      //);
   }
-
-  // Things to do before unloading/closing the tab
     doSomethingBeforeUnload = () => {
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
       updatedLabList[myLabRefNum].labClosed = 'true'
-      //delete updatedLabList[myLabRefNum];
       myObj.set(updatedLabList)
-      //iHaveMeasured = false
     })
 }
 
-    // Setup the `beforeunload` event listener
     setupBeforeUnloadListener = () => {
-
-
-
-
         window.addEventListener("beforeunload", (ev) => {
             ev.preventDefault();
             this.doSomethingBeforeUnload();
@@ -85,29 +69,24 @@ class App extends Component {
     };
 
   handleIntroSubmit(e) {
-    //alert('The value is: ' + this.input.value);
     myLab = this.input.value
     e.preventDefault();
-    //check if lab exists,
-    //  if it doesnt then make it
-    //    to do this i need to be able to make lab objects in my firebase
-    //    the lab objects will have a name, a mode(experiment or game), a current
-    //    particle state which describes if/how it has been checked
-
-    this.startNewClassicGame()
     this.joinOrCreateLab()
+    this.startNewClassicGame()
   }
 
   showClassicGame(e) {
-      //increment particles current value by one
       e.preventDefault();
       console.log("showClassicGame")
       this.setState({style_experiment: true})
+      if (scientistCount == 2){
       this.setState({style_classic_game: false})
+    }
       this.setState({style_quantum_game: true})
   }
 
   startNewClassicGame(e) {
+    current_mode = 'classicGame'
     var i;
     var oneCount = 0
     for (i = 0; i < totalQuestionNumber; i++) { 
@@ -116,29 +95,42 @@ class App extends Component {
     }
     console.log(listOfQuestions)
     console.log(oneCount)
-    this.setState({style_classic_game: false})
+    iHaveMeasured = false
+    if (scientistCount == 2){
+      this.setState({style_classic_game: false})
+    }
+    myObj.transaction(function(currentValue){
+      var updatedLabList = currentValue
+      if (updatedLabList[myLabRefNum].playerTwo == 'Bob'){
+        updatedLabList[myLabRefNum].gameQuestions = []
+        updatedLabList[myLabRefNum].gameAnswers = []
+        current_status = 'Begin playing game'
+      }else{
+          if (current_mode === 'classicGame'){
+          current_status = 'Waiting for other player to join'
+        }
+      }
+      myObj.set(updatedLabList)
+    })
   }
 
   showQuantumGame(e) {
-      //increment particles current value by one
       e.preventDefault();
       console.log("showClassicGame")
+      current_mode = 'quantumGame'
       this.setState({style_experiment: true})
       this.setState({style_classic_game: true})
       this.setState({style_quantum_game: false})
   }
 
   experiment(e) {
-      //increment particles current value by one
       e.preventDefault();
       console.log("experiment")
+      current_mode = 'experiment'
       this.setState({style_experiment: false})
       this.setState({style_classic_game: true})
-      this.setState({style_quantum_game: true})      
-
+      this.setState({style_quantum_game: true})
   }
-
-
 
   createEntanglement(){
 //e.preventDefault();
@@ -159,8 +151,14 @@ class App extends Component {
     currentQuestionIndex++
     this.setState({style_classic_game: false})
     console.log(listOfAnswers)
+
+//once enough questions are answered, add them to the db
+
     //once all the questions have been answered, it tells the user who completes first
     //  that the other is still answering. once both done, they get to see their report
+    //  -once all questions have been answered, set a variable in the db with the questions
+    //    and the answers. before then the variable should be none or null.
+    //  -when new game is started, set the question/answer to none/null
     //after game is complete, the complete results should be shown, every decision that both
     //  players made, whether they were right or wrong, percent win
     //there need not be player to player connection until both players have answered all their questions,
@@ -181,8 +179,6 @@ class App extends Component {
       if (particleStateNumber == '-1'){
         myMeasurementResult = (Math.floor(Math.random() * Math.floor(2))).toString()
         particleStateNumber = myMeasurementResult+myNumber.toString()+myMeasurementType.toString()
-        
-        //console.log('spin_direction',spin_direction.toString())
       }else if (particleStateNumber.charAt(2) == '0'){
               do_cos_squared_pi_over_8_measurement = true
       }else if (particleStateNumber.charAt(2) == '1'){
@@ -211,13 +207,6 @@ class App extends Component {
     })
     this.setState({style_experiment: false})
   }
-
-
-
-  // handleChange(event){
-  //   this.setState({hideToolTip: true})
-  // }
-
 
     deleteLab = () => {
     myObj.transaction(function(currentValue){
@@ -257,9 +246,16 @@ class App extends Component {
           //console.log('labs[myLabRefNum].playerTwo',labs[myLabRefNum].playerTwo)
         if (labs[myLabRefNum].playerTwo == 'Bob'){
           scientistCount = '2'
+        if (current_mode === 'classicGame'){
+          current_status = 'Begin playing game'
+        }
+
+
           this.setState({style_classic_game: false})
+
       }else{
         scientistCount = '1'
+        this.setState({style_classic_game: true})
       }
     }
     // else{
@@ -267,23 +263,11 @@ class App extends Component {
     //   this.setState({style_intro: false})
     //   this.setState({style_experiment: true})
     // }
-  }
-}
+        }
+      }
     })
   }
 
-
-
-  takeTurn=()=>{
-    particlesRef.transaction(function(currentValue){
-      //increment particles current value by one
-      const newValue = (currentValue||0) + 1
-      particlesRef.set(newValue)
-      console.log("take turn")
-      this.setState({style_experiment: true})
-      this.setState({style_classic_game: false})
-    })       
-  }
   joinOrCreateLab=()=>{
     var labIsFull = false
     myObj.transaction(function(currentValue){
@@ -308,7 +292,13 @@ class App extends Component {
          }
       }
     if (createNewLab){
-      var listObjList = { name: myLab, playerOne: 'Alice', playerTwo: 'None', particle: '-1', labClosed: 'false'};
+      var listObjList = { name: myLab, 
+                          playerOne: 'Alice',
+                           playerTwo: 'None',
+                            particle: '-1',
+                             labClosed: 'false',
+                              gameQuestions: [],
+                                gameAnswers: []};
       myNumber = 0
       myName = 'Alice'
       currentLabsList.push(listObjList)
@@ -322,7 +312,9 @@ class App extends Component {
       if (!labIsFull){
       this.setState({style_intro: true})
       this.setState({style_navigation_bar: false})
-      this.setState({style_classic_game: false})     
+      if (scientistCount == 2){
+        this.setState({style_classic_game: false})           
+      }  
     }
   }
 //it could be a walk-through, 
@@ -373,9 +365,6 @@ class App extends Component {
         </form>
       </mode_intro>
       <mode_experiment style={style_experiment}>
-        <label>Lab Name: {myLab}</label><br></br>
-        <label>My Name: {myName}</label><br></br>
-        <label>Scientist count: {scientistCount}</label><br></br>
         <label>Particle state: {myParticle}</label><br></br>
         <label>myMeasurementResult: {myMeasurementResult}</label><br></br>
         <button onClick={()=>this.doMeasurement(0)}>measureA</button>
@@ -395,7 +384,9 @@ class App extends Component {
         <br></br><br></br>
         <button onClick={this.showClassicGame}>classic game</button>
         <button onClick={this.experiment}>experiment</button>
-        <button onClick={this.showQuantumGame}>quantum game</button><br></br>   
+        <button onClick={this.showQuantumGame}>quantum game</button><br></br>
+        <label>Lab Name: {myLab} My Name: {myName} Scientist count: {scientistCount}</label><br></br>   
+        <label>Status: {current_status}</label>
         <label>{multiline.split("\n").map((i,key) => {
             return <div key={key}>{i}</div>;
         })}</label>
