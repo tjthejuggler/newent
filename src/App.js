@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, View } from 'react';
+//import { StyleSheet, View, Text, Platform} from 'react-native';
 //import * as functions from "firebase-functions"
 //import Tooltip from 'react-bootstrap';
 //import logo from './logo.svg';
@@ -9,7 +10,7 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import Experiment from './experiment'
-import Knob from 'react-canvas-knob';//make this like experiment with the modified react-canvas-knob
+import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
  
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 
@@ -49,7 +50,8 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
-      value: 50,
+      knobCorrelation: 0,
+      myKnobValue: 0,
       style_intro: false,
       style_experiment: true,
       style_classic_game: true,
@@ -90,10 +92,35 @@ class App extends Component {
         });
     };
 
+//make knobs between users interactive so either can see the others move
+//  make a myKnob and a otherPlayerKnob
+//  send myKnob position to the db
+//  get the otherPlayerKnob angle from db
+//have a simple % coorelated reading by default, but allow a togglable more detailed
+//  readout that has: angles, pi, %, maybe radians as well
 
   handleKnobChange = (newValue) => {
-    this.setState({value: newValue});
+    this.setState({myKnobValue: newValue});
+    this.setState({knobCorrelation: this.determineKnobCorrelation()});//Math.abs(360-newValue)});
+    myObj.transaction(function(currentValue){
+      console.log('currentValue',currentValue)
+      var updatedLabList = currentValue
+      if (myName === 'Alice'){
+        updatedLabList[myLabRefNum].aliceKnobAngle = newValue
+      }
+      else if (myName === 'Bob'){
+        updatedLabList[myLabRefNum].bobKnobAngle = newValue
+      }
+      myObj.set(updatedLabList)
+      //iHaveMeasured = false
+    })
+
+
   };
+
+  determineKnobCorrelation(e) {
+    return (Math.abs(360-this.state.myKnobValue))//this.state.myKnobValue
+  }
 
   handleIntroSubmit(e) {
     myLab = this.input.value
@@ -395,7 +422,9 @@ class App extends Component {
                           aliceGameQuestions: [],
                           aliceGameAnswers: [],
                           bobGameQuestions: [],
-                          bobGameAnswers: []};
+                          bobGameAnswers: [],
+                          aliceKnobAngle: 0,
+                          bobKnobAngle: 0};
       myNumber = 0
       myName = 'Alice'
       currentLabsList.push(listObjList)
@@ -447,9 +476,14 @@ class App extends Component {
     const style_experiment = this.state.style_experiment ? {display: 'none'} : {};
     const style_classic_game = this.state.style_classic_game ? {display: 'none'} : {};
     const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
-    const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {};
+    const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {border: '2px solid red', padding: "20px", margin: "20px"};
     const style_navigation_bar = this.state.style_navigation_bar ? {display: 'none'} : {};
+    const MainContainer =
+      {
+      border: '2px solid red', padding: "20px", margin: "20px"
+  }
     return (
+    <div style={MainContainer}>
       <div className="App">
       <navigation_bar style={style_navigation_bar}>
         Current mode: {current_mode}<br></br><br></br></navigation_bar>
@@ -483,12 +517,12 @@ class App extends Component {
       </mode_classic_game>
       <mode_quantum_game style={style_quantum_game}>
             <Knob
-            min='1'
+            min='0'
             max='360'
-        value={this.state.value}
-
-        onChange={this.handleKnobChange}
+            value={this.state.myKnobValue}
+            onChange={this.handleKnobChange}
       />
+      <label> knob: {this.state.knobCorrelation} </label>
       </mode_quantum_game>
       <navigation_bar style={style_navigation_bar}>
         <br></br><br></br><br></br><br></br><br></br><br></br>
@@ -499,6 +533,7 @@ class App extends Component {
       </navigation_bar>
 
 
+      </div>
       </div>
     );
   }
