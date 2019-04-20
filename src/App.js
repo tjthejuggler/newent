@@ -11,7 +11,14 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import Experiment from './experiment'
 import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
- 
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 
   {//testing get stuff again
@@ -31,10 +38,10 @@ var listOfAnswers = []
 var currentQuestionIndex = 0 //this can be either X or O
 var rightCounter = 0
 
-//var myLabRef
+//var myGameNameRef
 var myParticle = '-1'
-var myLab = 'none'
-var myLabRefNum = -1
+var myGameName = 'none'
+var myGameRefNum = -1
 var myNumber = -1
 var myName = 'none'
 var myMeasurementResult = -1
@@ -53,10 +60,16 @@ class App extends Component {
       knobCorrelation: 0,
       myKnobValue: 0,
       style_intro: false,
-      style_experiment: true,
+      styleParticle: true,
       style_classic_game: true,
       style_quantum_game: true,
       style_navigation_bar: true,
+      styleAliceNameMarker: false,
+      styleBobNameMarker:true,
+      styleHelpContainerVisibility:true,
+      showIntroDialog: true,
+      myStateLab: 'rrr',
+      showHideParticleText: 'Show Particle',
       columnDefs: [
                 {headerName: 'Alice Q', field: 'aliceQ', width:75},
                 {headerName: 'Bob Q', field: 'bobQ', width:75},
@@ -69,18 +82,20 @@ class App extends Component {
             resultsGridRowData: []
     };
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
+    this.showHideHelpBox = this.showHideHelpBox.bind(this);
     this.showClassicGame = this.showClassicGame.bind(this);
     this.startNewClassicGame = this.startNewClassicGame.bind(this);
     this.classicGameAnswer = this.classicGameAnswer.bind(this);
     this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
-    this.showExperiment = this.showExperiment.bind(this);
+    this.showHideExperiment = this.showHideExperiment.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
+    this.handleIntroChange = this.handleIntroChange.bind(this);
   }
     doSomethingBeforeUnload = () => {
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      updatedLabList[myLabRefNum].labClosed = 'true'
+      updatedLabList[myGameRefNum].labClosed = 'true'
       myObj.set(updatedLabList)
     })
 }
@@ -106,10 +121,10 @@ class App extends Component {
       console.log('currentValue',currentValue)
       var updatedLabList = currentValue
       if (myName === 'Alice'){
-        updatedLabList[myLabRefNum].aliceKnobAngle = newValue
+        updatedLabList[myGameRefNum].aliceKnobAngle = newValue
       }
       else if (myName === 'Bob'){
-        updatedLabList[myLabRefNum].bobKnobAngle = newValue
+        updatedLabList[myGameRefNum].bobKnobAngle = newValue
       }
       myObj.set(updatedLabList)
       //iHaveMeasured = false
@@ -119,15 +134,31 @@ class App extends Component {
   };
 
   determineKnobCorrelation(e) {
+    console.log((Math.abs(360-this.state.myKnobValue)))
     return (Math.abs(360-this.state.myKnobValue))//this.state.myKnobValue
   }
 
   handleIntroSubmit(e) {
-    myLab = this.input.value
+    //console.log('ffff',e.target.value)
+    myGameName = this.state.myStateLab
     e.preventDefault();
     this.joinOrCreateLab()
     this.startNewClassicGame()
+    this.setState({showIntroDialog: false})
+
+    
   }
+
+      handleIntroChange(event, newValue) {
+        console.log('handleIntroChange', event.target.value)
+        event.persist(); // allow native event access (see: https://facebook.github.io/react/docs/events.html)
+        // give react a function to set the state asynchronously.
+        // here it's using the "name" value set on the TextField
+        // to set state.person.[firstname|lastname].            
+        //this.setState((state) => state.myStateLab = newValue);
+        this.setState({myStateLab: event.target.value})
+
+    }
 
 
 
@@ -149,11 +180,11 @@ class App extends Component {
     
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      if (updatedLabList[myLabRefNum].playerOne === 'Bob'){
-        updatedLabList[myLabRefNum].aliceGameQuestions = []
-        updatedLabList[myLabRefNum].aliceGameAnswers = []
-        updatedLabList[myLabRefNum].bobGameQuestions = []
-        updatedLabList[myLabRefNum].bobGameAnswers = []
+      if (updatedLabList[myGameRefNum].playerOne === 'Bob'){
+        updatedLabList[myGameRefNum].aliceGameQuestions = []
+        updatedLabList[myGameRefNum].aliceGameAnswers = []
+        updatedLabList[myGameRefNum].bobGameQuestions = []
+        updatedLabList[myGameRefNum].bobGameAnswers = []
         current_status = 'Begin playing game'
         showAnswerButtons = true
       }else{
@@ -168,6 +199,14 @@ class App extends Component {
     }
   }
 
+  showHideHelpBox(e) {
+    if (this.state.styleHelpContainerVisibility){
+      this.setState({styleHelpContainerVisibility: false})
+    }else{
+      this.setState({styleHelpContainerVisibility: true})
+    }
+  }
+
   showClassicGame(e) {
     if (current_mode !== 'Classic Game'){
         e.preventDefault();
@@ -178,7 +217,7 @@ class App extends Component {
           console.log('yayaya')
           this.setState({style_classic_game: false})
         }
-        this.setState({style_experiment: true})
+        this.setState({styleParticle: true})
         this.setState({style_quantum_game: true})
         this.setState({style_navigation_bar: false})
     }
@@ -189,33 +228,39 @@ class App extends Component {
       e.preventDefault();
       console.log("showQuantumGame")
       current_mode = 'Quantum Game'
-      this.setState({style_experiment: true})
+      this.setState({styleParticle: true})
       this.setState({style_classic_game: true})
       this.setState({style_quantum_game: false})
       this.setState({style_navigation_bar: false})
     }
   }
 
-  showExperiment(e) {
+  showHideExperiment(e) {
       e.preventDefault();
+    if(this.state.styleParticle){
       console.log("experiment")
       current_mode = "Experiment"
-      this.setState({style_experiment: false})
-      this.setState({style_classic_game: true})
-      this.setState({style_quantum_game: true})
-      this.setState({style_navigation_bar: false})
+      this.setState({showHideParticleText: 'Hide Particle'})
+      this.setState({styleParticle: false})
+      // this.setState({style_classic_game: true})
+      // this.setState({style_quantum_game: true})
+      // this.setState({style_navigation_bar: false})
+    }else{
+      this.setState({showHideParticleText: 'Show Particle'})
+      this.setState({styleParticle: true})
+    }
   }
 
   createEntanglement(){
     myObj.transaction(function(currentValue){
       console.log('currentValue',currentValue)
       var updatedLabList = currentValue
-      updatedLabList[myLabRefNum].particle = '-1'
+      updatedLabList[myGameRefNum].particle = '-1'
       myParticle = '-1'
       myObj.set(updatedLabList)
       //iHaveMeasured = false
     })
-    this.setState({style_experiment: false})
+    this.setState({styleParticle: false})
   }
 
   classicGameAnswer(myAnswer){
@@ -230,9 +275,9 @@ class App extends Component {
     currentQuestionIndex++
     if (currentQuestionIndex === highestQuestionIndex){
         if (myNumber === 0){
-          updatedLabList[myLabRefNum].aliceGameQuestions = listOfQuestions
-          updatedLabList[myLabRefNum].aliceGameAnswers = listOfAnswers
-          if (updatedLabList[myLabRefNum].bobGameAnswers){
+          updatedLabList[myGameRefNum].aliceGameQuestions = listOfQuestions
+          updatedLabList[myGameRefNum].aliceGameAnswers = listOfAnswers
+          if (updatedLabList[myGameRefNum].bobGameAnswers){
             current_status = 'showing results'
             displayResults = null
           }else{
@@ -240,9 +285,9 @@ class App extends Component {
           }
         }
         if (myNumber === 1){
-          updatedLabList[myLabRefNum].bobGameQuestions = listOfQuestions
-          updatedLabList[myLabRefNum].bobGameAnswers = listOfAnswers
-          if (updatedLabList[myLabRefNum].aliceGameAnswers){
+          updatedLabList[myGameRefNum].bobGameQuestions = listOfQuestions
+          updatedLabList[myGameRefNum].bobGameAnswers = listOfAnswers
+          if (updatedLabList[myGameRefNum].aliceGameAnswers){
             current_status = 'showing results'
             displayResults = null
             console.log('show results')
@@ -276,7 +321,7 @@ class App extends Component {
     //e.preventDefault();
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      var particleStateNumber = updatedLabList[myLabRefNum].particle
+      var particleStateNumber = updatedLabList[myGameRefNum].particle
       var do_cos_squared_pi_over_8_measurement = false
       var do_cos_squared_3_pi_over_8_measurement = false
       if (!iHaveMeasured){
@@ -304,19 +349,19 @@ class App extends Component {
               else {myMeasurementResult = (particleStateNumber.charAt(0)+1)%2}
         }
       console.log('myMeasurementResult',myMeasurementResult)
-      updatedLabList[myLabRefNum].particle = particleStateNumber
+      updatedLabList[myGameRefNum].particle = particleStateNumber
       myParticle = particleStateNumber
       console.log('myParticle',myParticle)      
       myObj.set(updatedLabList)
       }
     })
-    this.setState({style_experiment: false})
+    this.setState({styleParticle: false})
   }
 
     deleteLab = () => {
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
-      delete updatedLabList[myLabRefNum];
+      delete updatedLabList[myGameRefNum];
       myObj.set(updatedLabList)
     })
   }
@@ -327,36 +372,36 @@ class App extends Component {
       const labs = snapshot.val()
       if (labs){
         console.log('labs',labs)
-        if (labs[myLabRefNum]){
-          if (labs[myLabRefNum].labClosed === 'true'){
+        if (labs[myGameRefNum]){
+          if (labs[myGameRefNum].labClosed === 'true'){
               console.log('lab is being deleted')
               this.deleteLab()
               this.setState({style_intro: false})
-              this.setState({style_experiment: true})
+              this.setState({styleParticle: true})
               this.setState({style_classic_game: true})
               this.setState({style_quantum_game: true})
               this.setState({style_navigation_bar: true})
           }else{
-            console.log('labs[myLabRefNum]')
-            console.log('myLabRefNum',myLabRefNum)
-            myParticle = labs[myLabRefNum].particle
+            console.log('labs[myGameRefNum]')
+            console.log('myGameRefNum',myGameRefNum)
+            myParticle = labs[myGameRefNum].particle
             if (myParticle === '-1'){
               iHaveMeasured = false
               myMeasurementResult = '-1'
             }
-            if (labs[myLabRefNum].playerOne === 'Bob'){
+            if (labs[myGameRefNum].playerOne === 'Bob'){
               scientistCount = '2'
             if (current_mode === 'Classic Game'){
               if (!listOfAnswers){
                 current_status = 'Begin playing game'
                 } 
-              if (labs[myLabRefNum].aliceGameAnswers && labs[myLabRefNum].bobGameAnswers){
+              if (labs[myGameRefNum].aliceGameAnswers && labs[myGameRefNum].bobGameAnswers){
                   current_status = 'show the results'
                   displayResults = null
-                  const aliceAnswers = labs[myLabRefNum].aliceGameAnswers
-                  const aliceQuestions = labs[myLabRefNum].aliceGameQuestions
-                  const bobAnswers = labs[myLabRefNum].bobGameAnswers
-                  const bobQuestions = labs[myLabRefNum].bobGameQuestions
+                  const aliceAnswers = labs[myGameRefNum].aliceGameAnswers
+                  const aliceQuestions = labs[myGameRefNum].aliceGameQuestions
+                  const bobAnswers = labs[myGameRefNum].bobGameAnswers
+                  const bobQuestions = labs[myGameRefNum].bobGameQuestions
                   var gridData = []
                   var i
                   for (i = 0; i < highestQuestionIndex; i++) { 
@@ -399,12 +444,12 @@ class App extends Component {
          currentLabsList = currentValue
          var lab
          for (lab in currentValue){
-          if (currentValue[lab].name === myLab){
+          if (currentValue[lab].name === myGameName){
             if (currentValue[lab].playerOne === 'Bob'){
             console.log("Lab is full")
             labIsFull = true
             }else{
-            console.log("You Joined Lab:",myLab)
+            console.log("You Joined Lab:",myGameName)
             myNumber = 1
             currentValue[lab].playerOne = 'Bob'
             myName = 'Bob'
@@ -413,8 +458,10 @@ class App extends Component {
           }
         }
       }
+      console.log('myGameName',this.myGameName)
+        //console.log('myStateLab',this.state.myStateLab)
     if (createNewLab){
-      var listObjList = { name: myLab, 
+      var listObjList = { name: myGameName, 
                           playerZero: 'Alice',
                           playerOne: 'None',
                           particle: '-1',
@@ -429,8 +476,8 @@ class App extends Component {
       myName = 'Alice'
       currentLabsList.push(listObjList)
     }
-      myLabRefNum = currentLabsList.length-1
-      console.log("myLabRefNum", myLabRefNum)
+      myGameRefNum = currentLabsList.length-1
+      console.log("myGameRefNum", myGameRefNum)
       myObj.set(currentLabsList)
       console.log("Labs updated")
     })
@@ -442,7 +489,13 @@ class App extends Component {
         this.setState({style_classic_game: false})           
       }  
     }
+    if (myName === 'Bob'){
+                    this.setState({styleAliceNameMarker: true});
+            this.setState({styleBobNameMarker: false});
+      }
   }
+
+
 
 //new experiment mode:
 //  user has two entangled particles in two measurement devices
@@ -471,36 +524,124 @@ class App extends Component {
 //  -make the experiment section be set up so that either player has their own entangled pair
 //    and they can slide the dials around with a live update on % coorelation so they can each see how
 //    measuring differently effects things
+
+//next:
+//  make it so when you create a game it tells you the waiting message in that dialog,
+//    once the other player joins it, the dialog closes and the game begins. we will need
+//    to put that in the 'component did mount' function
+//  CHSH game label at top of screen
+//  number of questions in lower dark area
+//  new game in lower dar area
   render() {
     const style_intro = this.state.style_intro ? {display: 'none'} : {};
-    const style_experiment = this.state.style_experiment ? {display: 'none'} : {};
+    const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
     const style_classic_game = this.state.style_classic_game ? {display: 'none'} : {};
     const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
     const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {border: '2px solid red', padding: "20px", margin: "20px"};
     const style_navigation_bar = this.state.style_navigation_bar ? {display: 'none'} : {};
+    const styleAliceName = {color:'#404040',fontSize:'12px'};
+    const styleBobName = {color:'#404040',fontSize:'12px'};
+    const styleAliceNameMarker = this.state.styleAliceNameMarker ? {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleBobNameMarker = this.state.styleBobNameMarker ? {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? {display: 'none'} : {};
     const MainContainer =
       {
-      border: '2px solid red', padding: "20px", margin: "20px"
+      //border: '2px solid #000000',
+      padding: "20px",
+        //margin: "10px",
+        marginLeft: '-21px',
+        marginTop: '-21px',
+        marginRight: '-21px',
+      backgroundColor: '#bfbfbf',
+      maxWidth: 300
+  }
+    const HelpContainer =
+      {
+      //border: '2px solid #000000',
+      padding: "20px",
+        //margin: "10px",
+        marginLeft: '-21px',
+        marginTop: '-21px',
+        marginRight: '-21px',
+      backgroundColor: '#bfbfbf',
+      maxWidth: 300
+  }
+  const InfoBarNames=
+      {
+      //border: '2px solid #000000',
+       padding: "10px",
+       paddingRight: '40px',
+        margin: "40px",
+         backgroundColor: "#8c8c8c",
+         maxWidth: 300
+         //marginRight: "100px"
+  }
+  const InfoBarHelp=
+      {
+      //border: '2px solid #000000',
+      //border: '2px solid #000000',
+
+        float:'right',
+          textAlign:'right',
+        //textAlign: 'right',
+        fontSize:'32px',
+         marginRight: "-20px"
   }
     return (
+    <div>
+    <Dialog
+          open={this.state.showIntroDialog}
+          onClose={this.handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">CHSH Game</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              This game requires two players with two devices. 
+              The first player creates a game, and the second joins.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              ref="myField"
+              margin="dense"
+              id="name"
+              label="Game name:"
+              onChange={this.handleIntroChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleIntroSubmit} color="primary">
+              Create
+            </Button>
+            <Button onClick={this.handleIntroSubmit} color="primary">
+              Join
+            </Button>
+          </DialogActions>
+        </Dialog>
+    <div style={InfoBarNames}>
     <div style={MainContainer}>
       <div className="App">
       <navigation_bar style={style_navigation_bar}>
         Current mode: {current_mode}<br></br><br></br></navigation_bar>
-        <label>Status: {current_status}</label><br></br><br></br><br></br>
-      <mode_intro style={style_intro}>
-        <form onSubmit={this.handleIntroSubmit}>
-          <label>Lab Name:<input type="text" ref={(input) => this.input = input} /></label>
-          <input type="submit" value="Submit" />
-        </form>
-      </mode_intro>
-      <Experiment 
-        expStyle={style_experiment}
+        <label style={{color:'white', fontFamily:'Consolas'}}>Status: {current_status}</label><br></br><br></br><br></br>
+        <Experiment 
+        expStyle={styleParticle}
         particle={myParticle}
         measurement={myMeasurementResult}
         doMeasurement={this.doMeasurement}
         createEntanglement={this.createEntanglement}
+        knobValue = {this.state.myKnobValue}
+        onKnobChange = {this.handleKnobChange}
+        knobCorrelation = {this.state.knobCorrelation}
       />
+      <mode_intro style={style_intro}>
+        <form onSubmit={this.handleIntroSubmit}>
+          <label>Game Name:<input type="text" ref={(input) => this.input = input} /></label>
+          <input type="submit" value="Submit" />
+        </form>
+      </mode_intro>
+
       <mode_classic_game style={style_classic_game}>
         <button onClick={this.startNewClassicGame}>Start new game</button><br></br><br></br>
         <label>Question number: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>
@@ -515,25 +656,32 @@ class App extends Component {
                 </AgGridReact>
             </div>
       </mode_classic_game>
-      <mode_quantum_game style={style_quantum_game}>
-            <Knob
-            min='0'
-            max='360'
-            value={this.state.myKnobValue}
-            onChange={this.handleKnobChange}
-      />
-      <label> knob: {this.state.knobCorrelation} </label>
-      </mode_quantum_game>
       <navigation_bar style={style_navigation_bar}>
-        <br></br><br></br><br></br><br></br><br></br><br></br>
-        <label>Lab Name: {myLab} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
-        <button onClick={this.showClassicGame}>classic game</button>
-        <button onClick={this.showExperiment}>experiment</button>
-        <button onClick={this.showQuantumGame}>quantum game</button><br></br><br></br>
+        <label style={{color:'white',textAlign:'Left', position: 'relative'}}
+        onClick={this.showHideExperiment}>{this.state.showHideParticleText}</label>
+        <br></br>
+
       </navigation_bar>
 
 
       </div>
+      </div>
+      <div>
+        <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>
+        <label style={InfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
+        <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
+      </div>
+        
+
+      </div>
+        <div style={styleHelpContainerVisibility}>
+          <div style={HelpContainer}>
+            <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
+            <button onClick={this.showClassicGame}>classic game</button>
+            <button onClick={this.showHideExperiment}>experiment</button>
+            <button onClick={this.showQuantumGame}>quantum game</button><br></br><br></br>
+          </div>
+        </div>
       </div>
     );
   }
