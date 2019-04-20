@@ -382,7 +382,7 @@ var Knob = _wrapComponent('Knob')((_temp = _class = function (_React$Component) 
   thickness: 1,
   lineCap: 'butt',
   bgColor: '#EEE',
-  fgColor: '#000',
+  fgColor: 'red',
   inputColor: '',
   font: 'Arial',
   fontWeight: 'bold',

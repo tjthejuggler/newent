@@ -5,7 +5,6 @@ import React, { Component, View } from 'react';
 //import logo from './logo.svg';
 import './App.css';
 import firebase from 'firebase' 
-
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
@@ -33,7 +32,7 @@ const app = firebase.initializeApp(fbConfig)
 const myObj = firebase.database().ref('Labs')
 
 const highestQuestionIndex = 10
-var listOfQuestions = []
+
 var listOfAnswers = []
 var currentQuestionIndex = 0 //this can be either X or O
 var rightCounter = 0
@@ -61,34 +60,37 @@ class App extends Component {
       myKnobValue: 0,
       style_intro: false,
       styleParticle: true,
-      style_classic_game: true,
-      style_quantum_game: true,
-      style_navigation_bar: true,
       styleAliceNameMarker: false,
       styleBobNameMarker:true,
       styleHelpContainerVisibility:true,
       showIntroDialog: true,
+      displayDialogButtons: true,
+      displayGameInput: true,
+      gameMessage: '',
+      displayGameMessage: false,
+      dialogHeader: 'Create or Join',
+      dialogText: 'This game requires two players with two devices.'+ 
+                  'The first player creates a game, and the second joins.',
       myStateLab: 'rrr',
+      listOfQuestions: [],
       showHideParticleText: 'Show Particle',
-      columnDefs: [
-                {headerName: 'Alice Q', field: 'aliceQ', width:75},
-                {headerName: 'Bob Q', field: 'bobQ', width:75},
-                {headerName: 'Alice A', field: 'aliceA', width:75},
-                {headerName: 'Bob A', field: 'bobA', width:75},
-                {headerName: 'Result', field: 'result', width:75}
-                //{headerName: 'Price2', field: 'price2'}
-
-            ],
-            resultsGridRowData: []
+      aliceAKnobValue: '20',
+      aliceBKnobValue: '40',
+      bobAKnobValue: '60',
+      bobBKnobValue: '80',
+      columnDefs: [{headerName: 'AQ', field: 'aliceQ', width:45},
+                    {headerName: 'BQ', field: 'bobQ', width:45},
+                    {headerName: 'AA', field: 'aliceA', width:45},
+                    {headerName: 'BA', field: 'bobA', width:45},
+                    {headerName: 'Result', field: 'result', width:70}],
+      resultsGridRowData: []
     };
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
     this.showHideHelpBox = this.showHideHelpBox.bind(this);
-    this.showClassicGame = this.showClassicGame.bind(this);
     this.startNewClassicGame = this.startNewClassicGame.bind(this);
     this.classicGameAnswer = this.classicGameAnswer.bind(this);
-    this.showQuantumGame = this.showQuantumGame.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
-    this.showHideExperiment = this.showHideExperiment.bind(this);
+    this.showHideParticle = this.showHideParticle.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
     this.handleIntroChange = this.handleIntroChange.bind(this);
   }
@@ -144,9 +146,13 @@ class App extends Component {
     e.preventDefault();
     this.joinOrCreateLab()
     this.startNewClassicGame()
-    this.setState({showIntroDialog: false})
-
-    
+    if (scientistCount === 2){
+      this.setState({showIntroDialog: false})
+    }else{
+      this.setState({dialogText: 'Waiting for the other player to join.'})//this
+      this.setState({dialogHeader: 'Waiting...'})      
+      this.setState({displayDialogButtons: false})
+    }    
   }
 
       handleIntroChange(event, newValue) {
@@ -165,16 +171,20 @@ class App extends Component {
   startNewClassicGame(e) {
     current_mode = 'Classic Game'
     displayResults = 'none'
+    this.setState({displayGameInput:true})
     currentQuestionIndex = 0
     rightCounter = 0
     var i;
     var oneCount = 0
     var showAnswerButtons = false
+
+    var tempListOfQuestions = this.state.listOfQuestions    
     for (i = 0; i < highestQuestionIndex; i++) { 
-      listOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))
-      if (listOfQuestions[i] === 1){oneCount = oneCount+1}
+      tempListOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))
+      this.setState({listOfQuestions : tempListOfQuestions})
+      if (tempListOfQuestions[i] === 1){oneCount = oneCount+1}
     }
-    console.log(listOfQuestions)
+    console.log('this.state.listOfQuestions',this.state.listOfQuestions)
     console.log(oneCount)
     iHaveMeasured = false
     
@@ -187,16 +197,10 @@ class App extends Component {
         updatedLabList[myGameRefNum].bobGameAnswers = []
         current_status = 'Begin playing game'
         showAnswerButtons = true
-      }else{
-          if (current_mode === 'Classic Game'){
-          current_status = 'Waiting for other player to join'
-        }
       }
       myObj.set(updatedLabList)
     })
-    if (showAnswerButtons){
-      this.setState({style_classic_game: false})
-    }
+
   }
 
   showHideHelpBox(e) {
@@ -207,44 +211,13 @@ class App extends Component {
     }
   }
 
-  showClassicGame(e) {
-    if (current_mode !== 'Classic Game'){
-        e.preventDefault();
-        console.log("showClassicGame")
-        
-        console.log('scientistCount',scientistCount)
-        if (scientistCount == 2){
-          console.log('yayaya')
-          this.setState({style_classic_game: false})
-        }
-        this.setState({styleParticle: true})
-        this.setState({style_quantum_game: true})
-        this.setState({style_navigation_bar: false})
-    }
-  }
-
-  showQuantumGame(e) {
-    if (current_mode !== 'Quantum Game'){
-      e.preventDefault();
-      console.log("showQuantumGame")
-      current_mode = 'Quantum Game'
-      this.setState({styleParticle: true})
-      this.setState({style_classic_game: true})
-      this.setState({style_quantum_game: false})
-      this.setState({style_navigation_bar: false})
-    }
-  }
-
-  showHideExperiment(e) {
+  showHideParticle(e) {
       e.preventDefault();
     if(this.state.styleParticle){
       console.log("experiment")
       current_mode = "Experiment"
       this.setState({showHideParticleText: 'Hide Particle'})
       this.setState({styleParticle: false})
-      // this.setState({style_classic_game: true})
-      // this.setState({style_quantum_game: true})
-      // this.setState({style_navigation_bar: false})
     }else{
       this.setState({showHideParticleText: 'Show Particle'})
       this.setState({styleParticle: true})
@@ -264,43 +237,34 @@ class App extends Component {
   }
 
   classicGameAnswer(myAnswer){
+    console.log('myAnswer',myAnswer)
     //todo: dont let the user click the answer buttons if they have already answered all the questions
     //    this could be done by making the buttons be gone or by making an alert when a button is clicked
     //    -look through the notes scattered around and clean them up
     
     if (currentQuestionIndex < highestQuestionIndex){
+    var listOfQuestions = this.state.listOfQuestions
+    this.setState({displayGameInput:true})
     myObj.transaction(function(currentValue){
     var updatedLabList = currentValue
     listOfAnswers[currentQuestionIndex] = myAnswer
     currentQuestionIndex++
     if (currentQuestionIndex === highestQuestionIndex){
+      console.log('listOfQuestions',listOfQuestions)
         if (myNumber === 0){
           updatedLabList[myGameRefNum].aliceGameQuestions = listOfQuestions
           updatedLabList[myGameRefNum].aliceGameAnswers = listOfAnswers
-          if (updatedLabList[myGameRefNum].bobGameAnswers){
-            current_status = 'showing results'
-            displayResults = null
-          }else{
-            current_status = 'waiting for other player to finish'
-          }
         }
         if (myNumber === 1){
           updatedLabList[myGameRefNum].bobGameQuestions = listOfQuestions
           updatedLabList[myGameRefNum].bobGameAnswers = listOfAnswers
-          if (updatedLabList[myGameRefNum].aliceGameAnswers){
-            current_status = 'showing results'
-            displayResults = null
-            console.log('show results')
-          }else{
-            current_status = 'waiting for other player to finish'
-            console.log('waiting for other player to join')
-          }
         }
         myObj.set(updatedLabList)
+        }
+      })
     }
 
-
-
+  }
     //once all the questions have been answered, it tells the user who completes first
     //  that the other is still answering. once both done, they get to see their report
     //  -once all questions have been answered, set a variable in the db with the questions
@@ -312,10 +276,6 @@ class App extends Component {
     //  the player should keep track of all their questions and answers locally, once all questions
     //  are answered, they can be sent to the server where they are shared with the other player,
     //  and then both players see the results
-        })
-    this.setState({style_classic_game: false})
-    }
-  }
 
     doMeasurement(myMeasurementType){
     //e.preventDefault();
@@ -378,9 +338,6 @@ class App extends Component {
               this.deleteLab()
               this.setState({style_intro: false})
               this.setState({styleParticle: true})
-              this.setState({style_classic_game: true})
-              this.setState({style_quantum_game: true})
-              this.setState({style_navigation_bar: true})
           }else{
             console.log('labs[myGameRefNum]')
             console.log('myGameRefNum',myGameRefNum)
@@ -390,14 +347,36 @@ class App extends Component {
               myMeasurementResult = '-1'
             }
             if (labs[myGameRefNum].playerOne === 'Bob'){
+              if (this.state.showIntroDialog === true){
+                this.setState({showIntroDialog: false})
+                //console.log('showIntroDialog',this.state.showIntroDialog)
+              }
               scientistCount = '2'
             if (current_mode === 'Classic Game'){
               if (!listOfAnswers){
                 current_status = 'Begin playing game'
                 } 
+                console.log('myName',myName)
+                if (myName === 'Alice' && labs[myGameRefNum].aliceGameAnswers
+                   && !labs[myGameRefNum].bobGameAnswers){
+                        this.setState({displayGameInput:false})
+                        this.setState({gameMessage:'Waiting for Bob to finish'})
+                        this.setState({displayGameMessage:true})
+                        console.log('this.state.displayGameMessageAlice',this.state.displayGameMessage)
+                }
+                if (myName === 'Bob' && labs[myGameRefNum].bobGameAnswers
+                   && !labs[myGameRefNum].aliceGameAnswers){
+                  console.log('this is true')
+                        this.setState({displayGameInput:false});
+                        this.setState({gameMessage:'Waiting for Alice to finish'});
+                        this.setState({displayGameMessage:true});
+                        //this.setState({styleAliceNameMarker: true});
+                        console.log('this.state.displayGameMessageBob',this.state.displayGameMessage)
+                }
               if (labs[myGameRefNum].aliceGameAnswers && labs[myGameRefNum].bobGameAnswers){
                   current_status = 'show the results'
                   displayResults = null
+                  this.setState({displayGameInput:false})
                   const aliceAnswers = labs[myGameRefNum].aliceGameAnswers
                   const aliceQuestions = labs[myGameRefNum].aliceGameQuestions
                   const bobAnswers = labs[myGameRefNum].bobGameAnswers
@@ -421,13 +400,10 @@ class App extends Component {
                   //           {aliceA: 'Ford'},
                   //           {aliceA: 'Porsche'}]
                   this.setState({resultsGridRowData: gridData}) 
-                  this.setState({style_navigation_bar: false})
                 }
               }           
-              this.setState({style_classic_game: false})
             }else{
               scientistCount = '1'
-              this.setState({style_classic_game: true})
             }
           }
         }
@@ -481,14 +457,6 @@ class App extends Component {
       myObj.set(currentLabsList)
       console.log("Labs updated")
     })
-      if (!labIsFull){
-      this.setState({style_intro: true})
-      console.log('lab not full')
-      this.setState({style_navigation_bar: false})
-      if (scientistCount === 2){
-        this.setState({style_classic_game: false})           
-      }  
-    }
     if (myName === 'Bob'){
                     this.setState({styleAliceNameMarker: true});
             this.setState({styleBobNameMarker: false});
@@ -526,150 +494,141 @@ class App extends Component {
 //    measuring differently effects things
 
 //next:
+//  make a restart button
+//  things that can be clicked should be white
+//  when 'show particle' is clicked it should add color to lots of stuff, like
+//    the names of the players, the colors of the answer buttons, the knob colors as well
 //  make it so when you create a game it tells you the waiting message in that dialog,
 //    once the other player joins it, the dialog closes and the game begins. we will need
 //    to put that in the 'component did mount' function
 //  CHSH game label at top of screen
 //  number of questions in lower dark area
-//  new game in lower dar area
+
+
+//a checkbox that is 'automatically submit answer' determined from question result
   render() {
     const style_intro = this.state.style_intro ? {display: 'none'} : {};
     const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
-    const style_classic_game = this.state.style_classic_game ? {display: 'none'} : {};
     const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
-    const style_quantum_game = this.state.style_quantum_game ? {display: 'none'} : {border: '2px solid red', padding: "20px", margin: "20px"};
-    const style_navigation_bar = this.state.style_navigation_bar ? {display: 'none'} : {};
     const styleAliceName = {color:'#404040',fontSize:'12px'};
     const styleBobName = {color:'#404040',fontSize:'12px'};
-    const styleAliceNameMarker = this.state.styleAliceNameMarker ? {display: 'none'} : {color:'#404040',fontSize:'12px'};
-    const styleBobNameMarker = this.state.styleBobNameMarker ? {display: 'none'} : {color:'#404040',fontSize:'12px'};
-    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? {display: 'none'} : {};
-    const MainContainer =
-      {
-      //border: '2px solid #000000',
-      padding: "20px",
-        //margin: "10px",
-        marginLeft: '-21px',
-        marginTop: '-21px',
-        marginRight: '-21px',
-      backgroundColor: '#bfbfbf',
-      maxWidth: 300
-  }
-    const HelpContainer =
-      {
-      //border: '2px solid #000000',
-      padding: "20px",
-        //margin: "10px",
-        marginLeft: '-21px',
-        marginTop: '-21px',
-        marginRight: '-21px',
-      backgroundColor: '#bfbfbf',
-      maxWidth: 300
-  }
-  const InfoBarNames=
-      {
-      //border: '2px solid #000000',
-       padding: "10px",
-       paddingRight: '40px',
-        margin: "40px",
-         backgroundColor: "#8c8c8c",
-         maxWidth: 300
-         //marginRight: "100px"
-  }
-  const InfoBarHelp=
-      {
-      //border: '2px solid #000000',
-      //border: '2px solid #000000',
+    const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
+      {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleBobNameMarker = this.state.styleBobNameMarker ? 
+      {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
+      {display: 'none'} : {};
+    const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
+    const displayGameInput = this.state.displayGameInput ? {} : {display: 'none'} ;
+    const displayGameMessage = this.state.displayGameMessage ? 
+      {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
+    const MainContainer = {padding: "20px",
+                            marginLeft: '-21px',
+                            marginTop: '-21px',
+                            marginRight: '-21px',
+                            backgroundColor: '#bfbfbf',
+                            maxWidth: 300}
 
-        float:'right',
-          textAlign:'right',
-        //textAlign: 'right',
-        fontSize:'32px',
-         marginRight: "-20px"
+    const HelpContainer ={padding: "20px",
+                          marginLeft: '-21px',
+                          marginTop: '-21px',
+                          marginRight: '-21px',
+                          backgroundColor: '#bfbfbf',
+                          maxWidth: 300
   }
+  const InfoBar={ padding: "10px",
+                  paddingRight: '40px',
+                   margin: "40px",
+                   backgroundColor: "#8c8c8c",
+                   maxWidth: 300}
+
+  const styleInfoBarHelp={color:'white',
+                          float:'right',
+                          textAlign:'right',
+                          fontSize:'32px',
+                          marginRight: "-20px"}
+
+  const styleInfoBarNewGame={fontSize:'12px',
+                             marginLeft:'90px',
+                             justifyContent: 'center',
+                             alignItems: 'center'}
+
+  const styleMainHeader={color:'#8c8c8c',
+                          fontFamily:'Consolas',
+                          fontSize:'50px',
+                          fontWeight: "bold",
+                          float:'top',
+                          textAlign:'top'}
     return (
     <div>
-    <Dialog
-          open={this.state.showIntroDialog}
-          onClose={this.handleClose}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">CHSH Game</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              This game requires two players with two devices. 
-              The first player creates a game, and the second joins.
-            </DialogContentText>
+      <Dialog open={this.state.showIntroDialog}
+              onClose={this.handleClose}
+              aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">{this.state.dialogHeader}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{this.state.dialogText}</DialogContentText>
             <TextField
+              style = {displayDialogButtons}
               autoFocus
               ref="myField"
               margin="dense"
               id="name"
               label="Game name:"
               onChange={this.handleIntroChange}
-              fullWidth
-            />
-          </DialogContent>
+              fullWidth/>
+        </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleIntroSubmit} color="primary">
-              Create
-            </Button>
-            <Button onClick={this.handleIntroSubmit} color="primary">
-              Join
-            </Button>
+            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
+              color="primary">Create</Button>
+            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
+              color="primary">Join</Button>
           </DialogActions>
-        </Dialog>
-    <div style={InfoBarNames}>
-    <div style={MainContainer}>
-      <div className="App">
-      <navigation_bar style={style_navigation_bar}>
-        Current mode: {current_mode}<br></br><br></br></navigation_bar>
-        <label style={{color:'white', fontFamily:'Consolas'}}>Status: {current_status}</label><br></br><br></br><br></br>
-        <Experiment 
-        expStyle={styleParticle}
-        particle={myParticle}
-        measurement={myMeasurementResult}
-        doMeasurement={this.doMeasurement}
-        createEntanglement={this.createEntanglement}
-        knobValue = {this.state.myKnobValue}
-        onKnobChange = {this.handleKnobChange}
-        knobCorrelation = {this.state.knobCorrelation}
-      />
-      <mode_intro style={style_intro}>
-        <form onSubmit={this.handleIntroSubmit}>
-          <label>Game Name:<input type="text" ref={(input) => this.input = input} /></label>
-          <input type="submit" value="Submit" />
-        </form>
-      </mode_intro>
-
-      <mode_classic_game style={style_classic_game}>
-        <button onClick={this.startNewClassicGame}>Start new game</button><br></br><br></br>
-        <label>Question number: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>
-        <label>Question: {listOfQuestions[currentQuestionIndex]}</label><br></br>
-        <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-        <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
-            <div className="ag-theme-balham"
-                style={{ height: '400px', width: '400px', display: displayResults }}>
-                <AgGridReact
-                    columnDefs={this.state.columnDefs}
-                    rowData={this.state.resultsGridRowData}>
-                </AgGridReact>
+      </Dialog>
+    <div style={InfoBar}>
+      <div style={MainContainer}>
+        <div className="App">
+          <label style={styleMainHeader}>CHSH game</label><br></br>
+          <label style={displayGameMessage}>{this.state.gameMessage}</label><br></br><br></br><br></br>
+        <div style={displayGameInput}>        
+          <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br><br></br>
+          <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
+          <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+        </div>
+          <div className="ag-theme-balham"
+              style={{ height: '400px', width: '250px', display: displayResults }}>
+              <AgGridReact
+                  columnDefs={this.state.columnDefs}
+                  rowData={this.state.resultsGridRowData}>
+              </AgGridReact>
+          </div>
+        
+          <Experiment 
+            expStyle={styleParticle}
+            particle={myParticle}
+            measurement={myMeasurementResult}
+            doMeasurement={this.doMeasurement}
+            createEntanglement={this.createEntanglement}
+            knobValue = {this.state.myKnobValue}
+            aliceAKnobValue = {this.state.aliceAKnobValue}
+            aliceBKnobValue = {this.state.aliceBKnobValue}
+            bobAKnobValue = {this.state.bobAKnobValue}
+            bobBKnobValue = {this.state.bobBKnobValue}
+            onKnobChange = {this.handleKnobChange}
+            knobCorrelation = {this.state.knobCorrelation}
+          />
+            <div>
+              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
+              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label>
+              <br></br>
             </div>
-      </mode_classic_game>
-      <navigation_bar style={style_navigation_bar}>
-        <label style={{color:'white',textAlign:'Left', position: 'relative'}}
-        onClick={this.showHideExperiment}>{this.state.showHideParticleText}</label>
-        <br></br>
-
-      </navigation_bar>
-
-
-      </div>
-      </div>
+          </div>
+        </div>
       <div>
         <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>
-        <label style={InfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
+        <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label>
+        <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>       
         <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
+        <button style={styleInfoBarNewGame} onClick={this.startNewClassicGame}>Start new game</button>        
       </div>
         
 
@@ -677,10 +636,7 @@ class App extends Component {
         <div style={styleHelpContainerVisibility}>
           <div style={HelpContainer}>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
-            <button onClick={this.showClassicGame}>classic game</button>
-            <button onClick={this.showHideExperiment}>experiment</button>
-            <button onClick={this.showQuantumGame}>quantum game</button><br></br><br></br>
-          </div>
+            </div>
         </div>
       </div>
     );
