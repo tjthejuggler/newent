@@ -1,67 +1,87 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
-import Slider, { Range } from 'rc-slider';
-import 'rc-slider/assets/index.css';
+import Slider, { Range } from './rc-slider-modified';
+import './rc-slider-modified/assets/index.css';
 
 class Experiment extends Component {
 
+
+
     render(){
+
+	const styleKnob = {position: 'absolute', top: '380px', left: '80px', zIndex:0}
+
     	return(
 	      <div style={this.props.expStyle}>
 	        <label>Particle state: {this.props.particle}</label><br></br>
 	        <label>myMeasurementResult: {this.props.measurement}</label><br></br>
-	        <button onClick={()=>this.props.doMeasurement(0)}>measureA</button>
-	        <button onClick={()=>this.props.doMeasurement(1)}>measureB</button>
-	        <button onClick={this.props.createEntanglement}>entanglement</button>
+	        <label>{this.props.correlationReadout}</label>
 	        <br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-	        <br></br><br></br><br></br><br></br><br></br>
-    <div>
-      <p>Slider with custom handle</p>
-      <Slider min={0} max={20} defaultValue={3}/>
+	        <br></br><br></br>
+    <div style={{position: 'relative', zIndex:1}}>
+      <Slider min={0} 
+      	onChange={(e)=>this.props.onSliderChangeA(e)}
+      	defaultValue={10} 
+      	railStyle={{ backgroundColor: this.props.colorPrimaryA, height: 4 }}
+        trackStyle={{ backgroundColor: this.props.colorPrimaryA, height: 4 }}
+        dotStyle={{backgroundColor: this.props.colorPrimaryA, borderColor: this.props.colorPrimaryA}}
+        activeDotStyle={{backgroundColor: this.props.colorPrimaryA, borderColor: this.props.colorPrimaryA}}
+        handleStyle={{
+          borderColor: this.props.colorSecondaryA,
+          height: 28,
+          width: 28,
+          marginLeft: -14,
+          marginTop: -9,
+          backgroundColor: this.props.colorSecondaryA}} 
+        marks={{ 10: '0', 30: 'Pi/8', 50: 'Pi/4', 70: '3Pi/8', 90: 'Pi/2'}} 
+        step={null} />
     </div>
-    <div>
-      <p>Slider with fixed values</p>
-      <Slider min={20} defaultValue={[20,40]} dotStyle={{borderColor: 'orange'}}
-       activeDotStyle={{trackColor: 'yellow'}} marks={{ 20: 20, 40: 40, 100: 100 }} step={null} tipFormatter={value => `${value}%`} />
+    <br></br><br></br>
+    <div style={{position: 'relative', zIndex:1}}>
+       <Slider min={0} 
+       	onChange={(e)=>this.props.onSliderChangeB(e)}
+       	defaultValue={10} 
+      	railStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
+        trackStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
+        dotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
+        activeDotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
+        handleStyle={{
+          borderColor: this.props.colorSecondaryB,
+          height: 28,
+          width: 28,
+          marginLeft: -14,
+          marginTop: -9,
+          backgroundColor: this.props.colorSecondaryB}} 
+        marks={{ 10: '', 30: '', 50: '', 70: '', 90: ''}}  
+        step={null} />
     </div>
-    <div>
-      <p>Range with custom handle</p>
-      <Range min={0} max={20} defaultValue={[3, 10]} 
-       marks={{ 20: 20, 40: 40, 100: 100 }} tipFormatter={value => `${value}%`} />
-    </div>
-	        
-	        
-            <div style={{position: 'absolute', top: '340px', left: '60px'}}>
-            <Knob fgColor = 'red'
-            		min='0'
-		            max='360'
-		            value={this.props.aliceAKnobValue}
-		            onChange={this.props.onKnobChange}/><br></br>
-		    </div>
-		    <div style={{position: 'absolute', top: '340px', left: '60px'}}>
-		      <Knob fgColor = 'orange'
-		            min='0'
-		            max='360'
-		            value={this.props.aliceBKnobValue}
-		            onChange={this.props.onKnobChange}/><br></br>
-		    </div>
-            <div style={{position: 'absolute', top: '340px', left: '60px'}}>
-            <Knob fgColor = 'blue'
-            		min='0'
-		            max='360'
-		            value={this.props.bobAKnobValue}
-		            onChange={this.props.onKnobChange}/><br></br>
-		    </div>
-		    <div style={{position: 'absolute', top: '340px', left: '60px'}}>
-		    <Knob fgColor = 'green'
-		           min='0'
-		            max='360'
-		            value={this.props.bobBKnobValue}
-		            onChange={this.props.onKnobChange}/><br></br>
-		    </div>         
-      <label> knob: {this.props.knobCorrelation} </label>
-	      </div>
+    <br></br><br></br>	        
+	    <div style={styleKnob}>
+	    <Knob fgColor = 'red'
+	    		min='0'
+	            max='360'
+	            value={this.props.aliceAKnobValue}/><br></br>
+	    </div>
+	    <div style={styleKnob}>
+	      <Knob fgColor = 'orange'
+	            min='0'
+	            max='360'
+	            value={this.props.aliceBKnobValue}/><br></br>
+	    </div>
+	    <div style={styleKnob}>
+	    <Knob fgColor = 'blue'
+	    		min='0'
+	            max='360'
+	            value={this.props.bobAKnobValue}/><br></br>
+	    </div>
+	    <div style={styleKnob}>
+	    <Knob fgColor = 'green'
+	           min='0'
+	            max='360'
+	            value={this.props.bobBKnobValue}/><br></br>
+	    </div>         
+
+	  </div>
       )
     }
 }

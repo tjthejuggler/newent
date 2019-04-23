@@ -43,6 +43,10 @@ var myGameName = 'none'
 var myGameRefNum = -1
 var myNumber = -1
 var myName = 'none'
+var myColorPrimaryA = ''
+var myColorSecondaryA = ''
+var myColorPrimaryB = ''
+var myColorSecondaryB = ''
 var myMeasurementResult = -1
 var iHaveMeasured = false
 var scientistCount = 0
@@ -74,10 +78,11 @@ class App extends Component {
       myStateLab: 'rrr',
       listOfQuestions: [],
       showHideParticleText: 'Show Particle',
-      aliceAKnobValue: '20',
-      aliceBKnobValue: '40',
-      bobAKnobValue: '60',
-      bobBKnobValue: '80',
+      aliceAKnobValue: '270',
+      aliceBKnobValue: '300',
+      bobAKnobValue: '330',
+      bobBKnobValue: '360',
+      correlationReadout: 'no correlation',
       columnDefs: [{headerName: 'AQ', field: 'aliceQ', width:45},
                     {headerName: 'BQ', field: 'bobQ', width:45},
                     {headerName: 'AA', field: 'aliceA', width:45},
@@ -149,8 +154,8 @@ class App extends Component {
     if (scientistCount === 2){
       this.setState({showIntroDialog: false})
     }else{
-      this.setState({dialogText: 'Waiting for the other player to join.'})//this
-      this.setState({dialogHeader: 'Waiting...'})      
+      this.setState({dialogText: '..for the other player to join.'})//this
+      this.setState({dialogHeader: 'Waiting..'})      
       this.setState({displayDialogButtons: false})
     }    
   }
@@ -277,6 +282,104 @@ class App extends Component {
     //  are answered, they can be sent to the server where they are shared with the other player,
     //  and then both players see the results
 
+  onSliderChangeB (value)  {
+    console.log('sliderChangeB',value)
+    var angle = '0'
+    if (value == '10'){angle='360'}
+    if (value == '30'){angle='337.5'}
+    if (value == '50'){angle='315'}
+    if (value == '70'){angle='292.5'}
+    if (value == '90'){angle='270'}
+
+
+    if (myName === 'Alice'){
+      this.setState({aliceBKnobValue: angle}, function () {
+            this.figureCorrelations()
+        });
+      myObj.transaction(function(currentValue){
+        var updatedLabList = currentValue
+        updatedLabList[myGameRefNum].aliceBKnobValue = angle;
+        myObj.set(updatedLabList)
+      })
+    }else{
+      this.setState({bobBKnobValue: angle}, function () {
+            this.figureCorrelations()
+        });
+      myObj.transaction(function(currentValue){
+        var updatedLabList = currentValue
+        updatedLabList[myGameRefNum].bobBKnobValue = angle;
+        myObj.set(updatedLabList)
+      })
+    }
+  }
+    onSliderChangeA (value)  {
+    console.log('sliderChangeA',value)
+    var angle = '0'
+    if (value == '10'){angle='360'}
+    if (value == '30'){angle='337.5'}
+    if (value == '50'){angle='315'}
+    if (value == '70'){angle='292.5'}
+    if (value == '90'){angle='270'}
+
+    if (myName === 'Alice'){
+      this.setState({aliceAKnobValue: angle}, function () {
+            this.figureCorrelations()
+        });
+      myObj.transaction(function(currentValue){
+        var updatedLabList = currentValue
+        updatedLabList[myGameRefNum].aliceAKnobValue = angle;
+        myObj.set(updatedLabList)
+      })
+    }else{
+      this.setState({bobAKnobValue: angle}, function () {
+            this.figureCorrelations()
+        });
+      myObj.transaction(function(currentValue){
+        var updatedLabList = currentValue
+        updatedLabList[myGameRefNum].bobAKnobValue = angle;
+        myObj.set(updatedLabList)
+      })
+    }
+  } 
+    figureCorrelations(){
+      console.log('this.state.aliceAKnobValue',this.state.aliceAKnobValue)
+      console.log('this.state.aliceBKnobValue',this.state.aliceBKnobValue)
+      console.log('this.state.bobAKnobValue',this.state.bobAKnobValue)
+      console.log('this.state.bobBKnobValue',this.state.bobBKnobValue)    
+      var aliceBobCorrelation = []
+      aliceBobCorrelation[0]=Math.abs(parseFloat(this.state.aliceAKnobValue)-parseFloat(this.state.bobAKnobValue ))
+      aliceBobCorrelation[1] =Math.abs(parseFloat(this.state.aliceAKnobValue)-parseFloat(this.state.bobBKnobValue ))
+      aliceBobCorrelation[2] =Math.abs(parseFloat(this.state.aliceBKnobValue)-parseFloat(this.state.bobAKnobValue ))
+      aliceBobCorrelation[3] =Math.abs(parseFloat(this.state.aliceBKnobValue)-parseFloat(this.state.bobBKnobValue ))
+      //now i need to replace these differences with correlations like such:
+      //0 = 100
+      //22.5 = 85.3
+      //45 = 50
+      //67.5 = 14.6
+      //90 = 0
+      var i
+      for (i = 0; i < 4; i++) { 
+        if (aliceBobCorrelation[i] === 0){aliceBobCorrelation[i] = 100}
+        if (aliceBobCorrelation[i] === 22.5){aliceBobCorrelation[i] = 85.3}
+        if (aliceBobCorrelation[i] === 45){aliceBobCorrelation[i] = 50}
+        if (aliceBobCorrelation[i] === 67.5){aliceBobCorrelation[i] = 14.6}
+        if (aliceBobCorrelation[i] === 90){aliceBobCorrelation[i] = 0}  
+      }
+
+      if (myName === 'Alice'){
+        this.setState({correlationReadout: 'A: ' + aliceBobCorrelation[0] +','+ aliceBobCorrelation[1] +
+          'B: ' + aliceBobCorrelation[2] +','+ aliceBobCorrelation[3]})
+      //this.setState({correlationReadout: 'aliceA'})
+      
+      }else{
+        this.setState({correlationReadout: 'A: ' + aliceBobCorrelation[0] +','+ aliceBobCorrelation[2] +
+          'B: ' + aliceBobCorrelation[1] +','+ aliceBobCorrelation[3]})
+      //this.setState({correlationReadout: 'bobA'})
+      
+      }
+
+    }
+
     doMeasurement(myMeasurementType){
     //e.preventDefault();
     myObj.transaction(function(currentValue){
@@ -339,6 +442,16 @@ class App extends Component {
               this.setState({style_intro: false})
               this.setState({styleParticle: true})
           }else{
+              if (myName === 'Alice'){
+              this.setState({bobAKnobValue: labs[myGameRefNum].bobAKnobValue})
+              this.setState({bobBKnobValue: labs[myGameRefNum].bobBKnobValue})
+            }else if (myName === 'Bob'){
+              this.setState({aliceAKnobValue: labs[myGameRefNum].aliceAKnobValue})
+              this.setState({aliceBKnobValue: labs[myGameRefNum].aliceBKnobValue})
+            }
+              
+            
+            
             console.log('labs[myGameRefNum]')
             console.log('myGameRefNum',myGameRefNum)
             myParticle = labs[myGameRefNum].particle
@@ -429,6 +542,10 @@ class App extends Component {
             myNumber = 1
             currentValue[lab].playerOne = 'Bob'
             myName = 'Bob'
+            myColorPrimaryA = 'blue'
+            myColorSecondaryA = 'lightblue'
+            myColorPrimaryB = 'green'
+            myColorSecondaryB = 'lightgreen'
             createNewLab = false
             }
           }
@@ -450,6 +567,10 @@ class App extends Component {
                           bobKnobAngle: 0};
       myNumber = 0
       myName = 'Alice'
+      myColorPrimaryA = 'red'
+      myColorSecondaryA = 'lightcoral'
+      myColorPrimaryB = 'orange'
+      myColorSecondaryB = 'lightsalmon'
       currentLabsList.push(listObjList)
     }
       myGameRefNum = currentLabsList.length-1
@@ -458,10 +579,165 @@ class App extends Component {
       console.log("Labs updated")
     })
     if (myName === 'Bob'){
-                    this.setState({styleAliceNameMarker: true});
+            this.setState({styleAliceNameMarker: true});
             this.setState({styleBobNameMarker: false});
       }
   }
+
+  render() { 
+    const style_intro = this.state.style_intro ? {display: 'none'} : {};
+    const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
+    const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
+    const styleAliceName = {color:'#404040',fontSize:'12px'};
+    const styleBobName = {color:'#404040',fontSize:'12px'};
+    const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
+      {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleBobNameMarker = this.state.styleBobNameMarker ? 
+      {display: 'none'} : {color:'#404040',fontSize:'12px'};
+    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
+      {display: 'none'} : {};
+    const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
+    const displayGameInput = this.state.displayGameInput ? {} : {display: 'none'} ;
+    const displayGameMessage = this.state.displayGameMessage ? 
+      {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
+    const MainContainer = {padding: "20px",
+                            marginLeft: '-21px',
+                            marginTop: '-21px',
+                            marginRight: '-21px',
+                            backgroundColor: '#bfbfbf',
+                            maxWidth: 300}
+
+    const HelpContainer ={padding: "20px",
+                          marginLeft: '-21px',
+                          marginTop: '-21px',
+                          marginRight: '-21px',
+                          backgroundColor: '#bfbfbf',
+                          maxWidth: 300
+  }
+  const InfoBar={ padding: "10px", 
+                  paddingRight: '40px',
+                   margin: "40px",
+                   backgroundColor: "#8c8c8c",
+                   maxWidth: 300}
+
+  const styleInfoBarHelp={color:'white',
+                          float:'right',
+                          textAlign:'right',
+                          fontSize:'32px',
+                          marginRight: "-20px"}
+
+  const styleInfoBarNewGame={fontSize:'12px',
+                             marginLeft:'90px',
+                             justifyContent: 'center',
+                             alignItems: 'center'}
+
+  const styleMainHeader={color:'#8c8c8c',
+                          fontFamily:'Consolas',
+                          fontSize:'50px',
+                          fontWeight: "bold",
+                          float:'top',
+                          textAlign:'top'}
+
+
+    return (
+    <div>
+      <Dialog open={this.state.showIntroDialog}
+              onClose={this.handleClose}
+              aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">{this.state.dialogHeader}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{this.state.dialogText}</DialogContentText>
+            <TextField
+              style = {displayDialogButtons}
+              autoFocus
+              ref="myField"
+              margin="dense"
+              id="name"
+              label="Game name:"
+              onChange={this.handleIntroChange}
+              fullWidth/>
+        </DialogContent>
+          <DialogActions>
+            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
+              color="colorSecondaryBry">Create</Button>
+            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
+              color="primary">Join</Button>
+          </DialogActions>
+      </Dialog>
+    <div style={InfoBar}>
+      <div style={MainContainer}>
+        <div className="App">
+          <label style={styleMainHeader}>CHSH game</label><br></br>
+          <label style={displayGameMessage}>{this.state.gameMessage}</label><br></br><br></br><br></br>
+        <div style={displayGameInput}>        
+          <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br><br></br>
+          <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
+          <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+        </div>
+          <div className="ag-theme-balham"
+              style={{ height: '400px', width: '250px', display: displayResults }}>
+              <AgGridReact
+                  columnDefs={this.state.columnDefs}
+                  rowData={this.state.resultsGridRowData}>
+              </AgGridReact>
+          </div>
+        
+          <Experiment 
+            expStyle={styleParticle}
+            particle={myParticle}
+            measurement={myMeasurementResult}
+            doMeasurement={this.doMeasurement}
+            createEntanglement={this.createEntanglement}
+            knobValue = {this.state.myKnobValue}
+            aliceAKnobValue = {this.state.aliceAKnobValue}
+            aliceBKnobValue = {this.state.aliceBKnobValue}
+            bobAKnobValue = {this.state.bobAKnobValue}
+            bobBKnobValue = {this.state.bobBKnobValue}
+            onKnobChange = {this.handleKnobChange}
+            knobCorrelation = {this.state.knobCorrelation}
+            colorPrimaryA = {myColorPrimaryA}
+            colorSecondaryA = {myColorSecondaryA}
+            colorPrimaryB = {myColorPrimaryB}
+            colorSecondaryB = {myColorSecondaryB}
+            onSliderChangeA = {(e)=>this.onSliderChangeA(e)}
+            onSliderChangeB = {(e)=>this.onSliderChangeB(e)}
+            correlationReadout = {this.state.correlationReadout}
+          />
+            <div>
+              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
+              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label>
+              <br></br>
+            </div>
+          </div>
+        </div>
+      <div>
+        <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>
+        <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label>
+        <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>       
+        <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
+        <button style={styleInfoBarNewGame} onClick={this.startNewClassicGame}>Start new game</button>        
+      </div>
+      </div>
+        <div style={styleHelpContainerVisibility}>
+          <div style={HelpContainer}>
+            <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
+            </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+
+
+export default App;
+
+
+
+//a checkbox that is 'automatically submit answer' determined from question result
+
+//color status
+//join/create
 
 
 
@@ -503,152 +779,3 @@ class App extends Component {
 //    to put that in the 'component did mount' function
 //  CHSH game label at top of screen
 //  number of questions in lower dark area
-
-
-//a checkbox that is 'automatically submit answer' determined from question result
-  render() {
-    const style_intro = this.state.style_intro ? {display: 'none'} : {};
-    const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
-    const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
-    const styleAliceName = {color:'#404040',fontSize:'12px'};
-    const styleBobName = {color:'#404040',fontSize:'12px'};
-    const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
-      {display: 'none'} : {color:'#404040',fontSize:'12px'};
-    const styleBobNameMarker = this.state.styleBobNameMarker ? 
-      {display: 'none'} : {color:'#404040',fontSize:'12px'};
-    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
-      {display: 'none'} : {};
-    const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
-    const displayGameInput = this.state.displayGameInput ? {} : {display: 'none'} ;
-    const displayGameMessage = this.state.displayGameMessage ? 
-      {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
-    const MainContainer = {padding: "20px",
-                            marginLeft: '-21px',
-                            marginTop: '-21px',
-                            marginRight: '-21px',
-                            backgroundColor: '#bfbfbf',
-                            maxWidth: 300}
-
-    const HelpContainer ={padding: "20px",
-                          marginLeft: '-21px',
-                          marginTop: '-21px',
-                          marginRight: '-21px',
-                          backgroundColor: '#bfbfbf',
-                          maxWidth: 300
-  }
-  const InfoBar={ padding: "10px",
-                  paddingRight: '40px',
-                   margin: "40px",
-                   backgroundColor: "#8c8c8c",
-                   maxWidth: 300}
-
-  const styleInfoBarHelp={color:'white',
-                          float:'right',
-                          textAlign:'right',
-                          fontSize:'32px',
-                          marginRight: "-20px"}
-
-  const styleInfoBarNewGame={fontSize:'12px',
-                             marginLeft:'90px',
-                             justifyContent: 'center',
-                             alignItems: 'center'}
-
-  const styleMainHeader={color:'#8c8c8c',
-                          fontFamily:'Consolas',
-                          fontSize:'50px',
-                          fontWeight: "bold",
-                          float:'top',
-                          textAlign:'top'}
-    return (
-    <div>
-      <Dialog open={this.state.showIntroDialog}
-              onClose={this.handleClose}
-              aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">{this.state.dialogHeader}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{this.state.dialogText}</DialogContentText>
-            <TextField
-              style = {displayDialogButtons}
-              autoFocus
-              ref="myField"
-              margin="dense"
-              id="name"
-              label="Game name:"
-              onChange={this.handleIntroChange}
-              fullWidth/>
-        </DialogContent>
-          <DialogActions>
-            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
-              color="primary">Create</Button>
-            <Button style={displayDialogButtons} onClick={this.handleIntroSubmit} 
-              color="primary">Join</Button>
-          </DialogActions>
-      </Dialog>
-    <div style={InfoBar}>
-      <div style={MainContainer}>
-        <div className="App">
-          <label style={styleMainHeader}>CHSH game</label><br></br>
-          <label style={displayGameMessage}>{this.state.gameMessage}</label><br></br><br></br><br></br>
-        <div style={displayGameInput}>        
-          <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br><br></br>
-          <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-          <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
-        </div>
-          <div className="ag-theme-balham"
-              style={{ height: '400px', width: '250px', display: displayResults }}>
-              <AgGridReact
-                  columnDefs={this.state.columnDefs}
-                  rowData={this.state.resultsGridRowData}>
-              </AgGridReact>
-          </div>
-        
-          <Experiment 
-            expStyle={styleParticle}
-            particle={myParticle}
-            measurement={myMeasurementResult}
-            doMeasurement={this.doMeasurement}
-            createEntanglement={this.createEntanglement}
-            knobValue = {this.state.myKnobValue}
-            aliceAKnobValue = {this.state.aliceAKnobValue}
-            aliceBKnobValue = {this.state.aliceBKnobValue}
-            bobAKnobValue = {this.state.bobAKnobValue}
-            bobBKnobValue = {this.state.bobBKnobValue}
-            onKnobChange = {this.handleKnobChange}
-            knobCorrelation = {this.state.knobCorrelation}
-          />
-            <div>
-              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
-              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label>
-              <br></br>
-            </div>
-          </div>
-        </div>
-      <div>
-        <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>
-        <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label>
-        <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>       
-        <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
-        <button style={styleInfoBarNewGame} onClick={this.startNewClassicGame}>Start new game</button>        
-      </div>
-        
-
-      </div>
-        <div style={styleHelpContainerVisibility}>
-          <div style={HelpContainer}>
-            <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
-            </div>
-        </div>
-      </div>
-    );
-  }
-}
-
-
-
-export default App;
-
-
-
-
-//color status
-//join/create

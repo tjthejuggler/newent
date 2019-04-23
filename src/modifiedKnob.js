@@ -389,7 +389,7 @@ var Knob = _wrapComponent('Knob')((_temp = _class = function (_React$Component) 
   clockwise: true,
   cursor: false,
   stopper: true,
-  readOnly: false,
+  readOnly: true,
   disableTextInput: false,
   displayInput: false,
   angleArc: 360,
