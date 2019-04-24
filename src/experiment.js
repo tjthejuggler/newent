@@ -72,13 +72,13 @@ class Experiment extends Component {
 	    <Knob fgColor = 'blue'
 	    		min='0'
 	            max='360'
-	            value={this.props.bobAKnobValue}/><br></br>
+	            value={parseInt(this.props.bobAKnobValue)}/><br></br>
 	    </div>
 	    <div style={styleKnob}>
 	    <Knob fgColor = 'green'
 	           min='0'
 	            max='360'
-	            value={this.props.bobBKnobValue}/><br></br>
+	            value={parseInt(this.props.bobBKnobValue)}/><br></br>
 	    </div>         
 
 	  </div>
