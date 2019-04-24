@@ -568,20 +568,20 @@ class App extends Component {
                             marginTop: '-21px',
                             marginRight: '-21px',
                             backgroundColor: '#bfbfbf',
-                            maxWidth: 280}
+                            maxWidth: 250}
 
     const HelpContainer ={padding: "20px",
                           marginLeft: '-21px',
                           marginTop: '-21px',
                           marginRight: '-21px',
                           backgroundColor: '#bfbfbf',
-                          maxWidth: 280}
-                          
+                          maxWidth: 250}
+
   const InfoBar={ padding: "10px", 
                   paddingRight: '40px',
                    margin: "40px",
                    backgroundColor: "#8c8c8c",
-                   maxWidth: 305}
+                   maxWidth: 285}
 
   const styleInfoBarHelp={color:'white',
                           position: 'fixed', top: 80, left: 365,
