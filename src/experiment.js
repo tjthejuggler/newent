@@ -9,7 +9,7 @@ class Experiment extends Component {
 
     render(){
 
-	const styleKnob = {position: 'absolute', top: '-200px', left: '40px', zIndex:0}
+	const styleKnob = {position: 'absolute', top: '-170px', left: '40px', zIndex:0}
 
     	return(
 	      <div style={this.props.expStyle}>
