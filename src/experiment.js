@@ -9,7 +9,7 @@ class Experiment extends Component {
 
     render(){
 
-	const styleKnob = {position: 'absolute', top: '380px', left: '80px', zIndex:0}
+	const styleKnob = {position: 'absolute', top: '-200px', left: '40px', zIndex:0}
 
     	return(
 	      <div style={this.props.expStyle}>
@@ -38,25 +38,7 @@ class Experiment extends Component {
     </div>
     <br></br><br></br>
     <div style={{position: 'relative', zIndex:1}}>
-       <Slider min={0} 
-       	onChange={(e)=>this.props.onSliderChangeB(e)}
-       	defaultValue={10} 
-      	railStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
-        trackStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
-        dotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
-        activeDotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
-        handleStyle={{
-          borderColor: this.props.colorSecondaryB,
-          height: 28,
-          width: 28,
-          marginLeft: -14,
-          marginTop: -9,
-          backgroundColor: this.props.colorSecondaryB}} 
-        marks={{ 10: '', 30: '', 50: '', 70: '', 90: ''}}  
-        step={null} />
-    </div>
-    <br></br><br></br>	        
-	    <div style={styleKnob}>
+   	<div style={styleKnob}>
 	    <Knob fgColor = 'red'
 	    		min='0'
 	            max='360'
@@ -79,7 +61,26 @@ class Experiment extends Component {
 	           min='0'
 	            max='360'
 	            value={parseInt(this.props.bobBKnobValue)}/><br></br>
-	    </div>         
+	    </div>  
+       <Slider min={0} 
+       	onChange={(e)=>this.props.onSliderChangeB(e)}
+       	defaultValue={10} 
+      	railStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
+        trackStyle={{ backgroundColor: this.props.colorPrimaryB, height: 4 }}
+        dotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
+        activeDotStyle={{backgroundColor: this.props.colorPrimaryB, borderColor: this.props.colorPrimaryB}}
+        handleStyle={{
+          borderColor: this.props.colorSecondaryB,
+          height: 28,
+          width: 28,
+          marginLeft: -14,
+          marginTop: -9,
+          backgroundColor: this.props.colorSecondaryB}} 
+        marks={{ 10: '', 30: '', 50: '', 70: '', 90: ''}}  
+        step={null} />
+    </div>
+    <br></br><br></br>	        
+       
 
 	  </div>
       )
