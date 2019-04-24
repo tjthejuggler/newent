@@ -548,15 +548,15 @@ class App extends Component {
     const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
     const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
     const styleAliceName = {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 140, left: 362};
+                            position: 'fixed', top: 140, left: 332};
     const styleBobName = {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 160, left: 362};
+                            position: 'fixed', top: 160, left: 332};
     const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
       {display: 'none'} : {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 140, left: 355};
+                            position: 'fixed', top: 140, left: 325};
     const styleBobNameMarker = this.state.styleBobNameMarker ? 
       {display: 'none'} : {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 160, left: 355};
+                            position: 'fixed', top: 160, left: 325};
     const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
       {display: 'none'} : {};
     const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
@@ -584,11 +584,11 @@ class App extends Component {
                    maxWidth: 285}
 
   const styleInfoBarHelp={color:'white',
-                          position: 'fixed', top: 80, left: 365,
+                          position: 'fixed', top: 80, left: 335,
                           fontSize:'32px'}
 
   const styleInfoBarRestart={color:'white',
-                            position: 'fixed', top: 40, left: 355,
+                            position: 'fixed', top: 40, left: 325,
                             fontSize:'32px'}
 
 
@@ -598,7 +598,7 @@ class App extends Component {
 
   const styleMainHeader={color:'#8c8c8c',
                           fontFamily:'Consolas',
-                          fontSize:'50px',
+                          fontSize:'40px',
                           fontWeight: "bold",
                           float:'top',
                           textAlign:'top'}
