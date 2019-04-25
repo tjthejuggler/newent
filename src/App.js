@@ -1,15 +1,11 @@
-import React, { Component, View } from 'react';
-//import { StyleSheet, View, Text, Platform} from 'react-native';
-//import * as functions from "firebase-functions"
-//import Tooltip from 'react-bootstrap';
-//import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
 import firebase from 'firebase' 
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import Experiment from './experiment'
-import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
+//import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -35,11 +31,10 @@ const highestQuestionIndex = 10
 
 var listOfAnswers = []
 var currentQuestionIndex = 0 //this can be either X or O
-var rightCounter = 0
 
 //var myGameNameRef
 var myParticle = '-1'
-var myGameName = 'none'
+var myGameName = ''
 var myGameRefNum = -1
 var myNumber = -1
 var myName = 'none'
@@ -52,7 +47,6 @@ var iHaveMeasured = false
 var scientistCount = 0
 
 var current_mode = 'intro'
-var current_status = 'welcome'
 
 var displayResults = 'none'
 
@@ -74,7 +68,7 @@ class App extends Component {
       dialogHeader: 'Create or Join',
       dialogText: 'This game requires two players each with their own device.'+ 
                   'The first player creates a game, and the second joins.',
-      myStateLab: 'rrr',
+      myStateLab: '',
       listOfQuestions: [],
       showHideParticleText: 'Show Particle',
       aliceAKnobValue: 360,
@@ -113,22 +107,45 @@ class App extends Component {
     };
 
   handleIntroSubmit(e) {
-    //console.log('ffff',e.target.value)
-    myGameName = this.state.myStateLab
+    console.log('handleIntroSubmit')
     e.preventDefault();
-    this.joinOrCreateLab()
-    this.startNewClassicGame()
-    if (scientistCount === 2){
-      this.setState({showIntroDialog: false})
-    }else{
-      this.setState({dialogText: '..for the other player to join.'})//this
-      this.setState({dialogHeader: 'Waiting..'})      
-      this.setState({displayDialogButtons: false})
-    }    
-  }
+    var shouldJoinOrCreate = false
+    //console.log('ffff',e.target.value)
+    myObj.transaction(function(currentValue){
+      console.log('currentValue',currentValue)
+      var currentLabsList = []
+      if (currentValue) {
+        console.log('currentValue2',currentValue)
+         currentLabsList = currentValue
+         var lab
+         for (lab in currentLabsList){
+            if (currentValue[lab].name === myGameName){
+              console.log('currentValue[lab].name === myGameName')
+              if (currentValue[lab].playerOne === 'Bob'){
+                console.log('Lab is full, currentValue[lab].playerOne === Bob')
+                alert('Game is full')
+              }else{
+                shouldJoinOrCreate = true //turn this into 2 dif functions maybe     
+              }
+          }else{
+            shouldJoinOrCreate = true                
+          }
+        }
+      }else{    
+        shouldJoinOrCreate = true
+      }
+    }
+    
+    )
+      if (shouldJoinOrCreate){
+        this.joinOrCreateLab()
+      } 
+    }
+   
 
       handleIntroChange(event, newValue) {
         console.log('handleIntroChange', event.target.value)
+        myGameName = event.target.value
         event.persist(); // allow native event access (see: https://facebook.github.io/react/docs/events.html)
         // give react a function to set the state asynchronously.
         // here it's using the "name" value set on the TextField
@@ -145,10 +162,9 @@ class App extends Component {
     displayResults = 'none'
     this.setState({displayGameInput:true})
     currentQuestionIndex = 0
-    rightCounter = 0
     var i;
     var oneCount = 0
-    var showAnswerButtons = false
+    //var showAnswerButtons = false
 
     var tempListOfQuestions = this.state.listOfQuestions    
     for (i = 0; i < highestQuestionIndex; i++) { 
@@ -167,8 +183,7 @@ class App extends Component {
         updatedLabList[myGameRefNum].aliceGameAnswers = []
         updatedLabList[myGameRefNum].bobGameQuestions = []
         updatedLabList[myGameRefNum].bobGameAnswers = []
-        current_status = 'Begin playing game'
-        showAnswerButtons = true
+        //showAnswerButtons = true
       }
       myObj.set(updatedLabList)
     })
@@ -401,10 +416,12 @@ class App extends Component {
               this.setState({bobAKnobValue: labs[myGameRefNum].bobAKnobValue})
               this.setState({bobBKnobValue: labs[myGameRefNum].bobBKnobValue})
               this.setCorrelationReadout()
+              //this.forceUpdate()
             }else if (myName === 'Bob'){
               this.setState({aliceAKnobValue: labs[myGameRefNum].aliceAKnobValue})
               this.setState({aliceBKnobValue: labs[myGameRefNum].aliceBKnobValue})
               this.setCorrelationReadout()
+              //this.forceUpdate()
             }
               
             
@@ -423,9 +440,6 @@ class App extends Component {
               }
               scientistCount = '2'
             if (current_mode === 'Classic Game'){
-              if (!listOfAnswers){
-                current_status = 'Begin playing game'
-                } 
                 console.log('myName',myName)
                 if (myName === 'Alice' && labs[myGameRefNum].aliceGameAnswers
                    && !labs[myGameRefNum].bobGameAnswers){
@@ -444,7 +458,6 @@ class App extends Component {
                         console.log('this.state.displayGameMessageBob',this.state.displayGameMessage)
                 }
               if (labs[myGameRefNum].aliceGameAnswers && labs[myGameRefNum].bobGameAnswers){
-                  current_status = 'show the results'
                   displayResults = null
                   this.setState({displayGameInput:false})
                   const aliceAnswers = labs[myGameRefNum].aliceGameAnswers
@@ -457,7 +470,6 @@ class App extends Component {
                       var currentResult = 'wrong'
                       if (aliceQuestions[i]*bobQuestions[i]===(aliceAnswers[i]+bobAnswers[i])%2){
                       currentResult = 'right'
-                      rightCounter++
                     }
                         gridData.push({ aliceQ: aliceQuestions[i], 
                                         bobQ: bobQuestions[i], 
@@ -465,10 +477,6 @@ class App extends Component {
                                         bobA: bobAnswers[i],
                                         result: currentResult   })
                       }
-                  // console.log('in this2')
-                  // var gridData=[  {aliceA: 'Toyota'},
-                  //           {aliceA: 'Ford'},
-                  //           {aliceA: 'Porsche'}]
                   this.setState({resultsGridRowData: gridData}) 
                 }
               }           
@@ -482,7 +490,6 @@ class App extends Component {
   }
 
   joinOrCreateLab=()=>{
-    var labIsFull = false
     myObj.transaction(function(currentValue){
       var currentLabsList = []
       var createNewLab = true
@@ -491,10 +498,7 @@ class App extends Component {
          var lab
          for (lab in currentValue){
           if (currentValue[lab].name === myGameName){
-            if (currentValue[lab].playerOne === 'Bob'){
-            console.log("Lab is full")
-            labIsFull = true
-            }else{
+            console.log("currentValue[lab].name === myGameName")
             console.log("You Joined Lab:",myGameName)
             myNumber = 1
             currentValue[lab].playerOne = 'Bob'
@@ -503,12 +507,11 @@ class App extends Component {
             myColorSecondaryA = 'lightblue'
             myColorPrimaryB = 'green'
             myColorSecondaryB = 'lightgreen'
-            createNewLab = false
-            }
+            createNewLab = false            
           }
         }
       }
-      console.log('myGameName',this.myGameName)
+      console.log('myGameName',myGameName)
         //console.log('myStateLab',this.state.myStateLab)
     if (createNewLab){
       var listObjList = { name: myGameName, 
@@ -532,11 +535,24 @@ class App extends Component {
       myColorSecondaryB = 'lightsalmon'
       currentLabsList.push(listObjList)
     }
-      myGameRefNum = currentLabsList.length-1
+        myObj.set(currentLabsList)
+          myGameRefNum = currentLabsList.length-1
+      })
+        
       console.log("myGameRefNum", myGameRefNum)
-      myObj.set(currentLabsList)
-      console.log("Labs updated")
-    })
+      console.log("this.state.myStateLab",this.state.myStateLab)
+      myGameName = this.state.myStateLab
+      this.startNewClassicGame()
+      if (myName === 'Bob'){
+        this.setState({showIntroDialog: false})
+      }else{
+        this.setState({dialogText: '..for the other player to join.'})//this
+        this.setState({dialogHeader: 'Waiting..'})      
+        this.setState({displayDialogButtons: false})
+      } 
+
+
+      
     if (myName === 'Bob'){
             this.setState({styleAliceNameMarker: true});
             this.setState({styleBobNameMarker: false});
@@ -544,9 +560,7 @@ class App extends Component {
   }
 
   render() { 
-    const style_intro = this.state.style_intro ? {display: 'none'} : {};
     const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
-    const style_game_results = this.state.style_game_results ? {display: 'none'} : {};
     const styleAliceName = {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 140, left: 332};
     const styleBobName = {color:'#404040',fontSize:'12px',
@@ -648,6 +662,15 @@ class App extends Component {
                   rowData={this.state.resultsGridRowData}>
               </AgGridReact>
           </div>
+
+            <div>
+              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
+              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label><br></br>
+              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}>
+              __________________________________________</label>
+
+              <br></br>
+            </div>
         
           <Experiment 
             expStyle={styleParticle}
@@ -668,11 +691,7 @@ class App extends Component {
             onSliderChangeB = {(e)=>this.onSliderChangeB(e)}
             correlationReadout = {this.state.correlationReadout}
           />
-            <div>
-              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
-              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label>
-              <br></br>
-            </div>
+
           </div>
         </div>
       <div>
@@ -696,6 +715,21 @@ class App extends Component {
 
 export default App;
 
+//simple UI thoughts:
+//-there should be a simple UI that is for the laymen, but then another one that
+//  it can be set to that is more specific language
+//-refering to the questions as the 1st and 2nd question in a simpler mode and
+//  explaining that you dont know what the question is, you just know that so long
+//  as you do the appropriate answers.
+
+//UI thoughts
+//-game can be played manually or automatically.
+//-if automatically then they can do so classically, by either always
+//    answering the 1st question with a 0 or always with a 1, and the same with
+//    the 2nd question.
+//-however, they can also answer automatically quantumly by automatically measuring
+//  their quantum bit in a specific basis, and using the result of their measurement as
+//  the answer to the corresponding question.
 
 
 //a checkbox that is 'automatically submit answer' determined from question result

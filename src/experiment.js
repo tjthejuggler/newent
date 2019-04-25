@@ -13,12 +13,13 @@ class Experiment extends Component {
 
     	return(
 	      <div style={this.props.expStyle}>
+	      	<br></br><br></br>
 	        <label>Particle state: {this.props.particle}</label><br></br>
 	        <label>myMeasurementResult: {this.props.measurement}</label><br></br>
 	        <label>{this.props.correlationReadout}</label>
 	        <br></br><br></br><br></br><br></br><br></br><br></br><br></br>
 	        <br></br><br></br>
-    <div style={{position: 'relative', zIndex:1}}>
+    <div style={{position: 'relative', zIndex:10}}>
       <Slider min={0} 
       	onChange={(e)=>this.props.onSliderChangeA(e)}
       	defaultValue={10} 
@@ -61,7 +62,8 @@ class Experiment extends Component {
 	           min='0'
 	            max='360'
 	            value={parseInt(this.props.bobBKnobValue)}/><br></br>
-	    </div>  
+	    </div> 
+	    <div style={{position: 'relative', zIndex:11}}> 
        <Slider min={0} 
        	onChange={(e)=>this.props.onSliderChangeB(e)}
        	defaultValue={10} 
@@ -78,6 +80,7 @@ class Experiment extends Component {
           backgroundColor: this.props.colorSecondaryB}} 
         marks={{ 10: '', 30: '', 50: '', 70: '', 90: ''}}  
         step={null} />
+        </div>
     </div>
     <br></br><br></br>	        
        
