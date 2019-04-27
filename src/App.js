@@ -56,13 +56,13 @@ class App extends Component {
     this.state = {
       knobCorrelation: 0,
       style_intro: false,
-      styleParticle: true,
+      displayParticle: false,
       styleAliceNameMarker: false,
       styleBobNameMarker:true,
       styleHelpContainerVisibility:true,
       showIntroDialog: true,
       displayDialogButtons: true,
-      displayGameInput: true,
+      displayGameInput: false,
       gameMessage: '',
       displayGameMessage: false,
       dialogHeader: 'Create or Join',
@@ -70,7 +70,7 @@ class App extends Component {
                   'The first player creates a game, and the second joins.',
       myStateLab: '',
       listOfQuestions: [],
-      showHideParticleText: 'Show Particle',
+      //showHideParticleText: 'Show Particle',
       aliceAKnobValue: 360,
       aliceBKnobValue: 360,
       bobAKnobValue: 360,
@@ -88,7 +88,7 @@ class App extends Component {
     this.startNewClassicGame = this.startNewClassicGame.bind(this);
     this.classicGameAnswer = this.classicGameAnswer.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
-    this.showHideParticle = this.showHideParticle.bind(this);
+    //this.showHideParticle = this.showHideParticle.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
     this.handleIntroChange = this.handleIntroChange.bind(this);
   }
@@ -160,7 +160,7 @@ class App extends Component {
   startNewClassicGame(e) {
     current_mode = 'Classic Game'
     displayResults = 'none'
-    this.setState({displayGameInput:true})
+    //this.setState({displayGameInput:true})
     currentQuestionIndex = 0
     var i;
     var oneCount = 0
@@ -198,18 +198,18 @@ class App extends Component {
     }
   }
 
-  showHideParticle(e) {
-      e.preventDefault();
-    if(this.state.styleParticle){
-      console.log("experiment")
-      current_mode = "Experiment"
-      this.setState({showHideParticleText: 'Hide Particle'})
-      this.setState({styleParticle: false})
-    }else{
-      this.setState({showHideParticleText: 'Show Particle'})
-      this.setState({styleParticle: true})
-    }
-  }
+  // showHideParticle(e) {
+  //     e.preventDefault();
+  //   if(this.state.displayParticle){
+  //     console.log("experiment")
+  //     current_mode = "Experiment"
+  //     this.setState({showHideParticleText: 'Hide Particle'})
+  //     this.setState({displayParticle: false})
+  //   }else{
+  //     this.setState({showHideParticleText: 'Show Particle'})
+  //     this.setState({displayParticle: true})
+  //   }
+  // }
 
   createEntanglement(){
     myObj.transaction(function(currentValue){
@@ -220,7 +220,23 @@ class App extends Component {
       myObj.set(updatedLabList)
       //iHaveMeasured = false
     })
-    this.setState({styleParticle: false})
+    this.setState({displayParticle: false})
+  }
+
+  gameTypeRadioButtonClicked(gameType){
+    console.log('gameType',gameType)
+    if (gameType === 'manual'){
+      this.setState({displayGameInput:true})
+      this.setState({displayParticle:false})
+    }else if(gameType === 'autoClassic'){
+        this.setState({displayGameInput:false})
+        this.setState({displayParticle:false})
+    }else if(gameType === 'autoQuantum'){
+      this.setState({displayGameInput:false})
+      this.setState({displayParticle:true})
+      
+      
+    }
   }
 
   classicGameAnswer(myAnswer){
@@ -388,7 +404,7 @@ class App extends Component {
       myObj.set(updatedLabList)
       }
     })
-    this.setState({styleParticle: false})
+    this.setState({displayParticle: false})
   }
 
     deleteLab = () => {
@@ -410,7 +426,7 @@ class App extends Component {
               console.log('lab is being deleted')
               this.deleteLab()
               this.setState({style_intro: false})
-              this.setState({styleParticle: true})
+              //this.setState({displayParticle: true})
           }else{
               if (myName === 'Alice'){
               this.setState({bobAKnobValue: labs[myGameRefNum].bobAKnobValue})
@@ -559,8 +575,12 @@ class App extends Component {
       }
   }
 
+  setGender(event) {
+    console.log(event.target.value);
+  }
+
   render() { 
-    const styleParticle = this.state.styleParticle ? {display: 'none'} : {};
+    const displayParticle = this.state.displayParticle ? {} : {display: 'none'};
     const styleAliceName = {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 140, left: 332};
     const styleBobName = {color:'#404040',fontSize:'12px',
@@ -646,7 +666,25 @@ class App extends Component {
     <div style={InfoBar}>
       <div style={MainContainer}>
         <div className="App">
-          <label style={styleMainHeader}>CHSH game</label><br></br>
+          <label style={styleMainHeader}>CHSH game</label>
+          <div onChange={this.setGender.bind(this)}>
+            <input type="radio" 
+                  value="autoClassic" 
+                  name="gender"
+                  onClick={()=>this.gameTypeRadioButtonClicked('autoClassic')}/> Auto (Classic) 
+                  <br></br>
+            <input type="radio" 
+                  value="autoQuantum" 
+                  name="gender"
+                  onClick={()=>this.gameTypeRadioButtonClicked('autoQuantum')}/> Auto (Quantum) 
+                  <br></br>
+          <input type="radio" 
+                  value="manual" 
+                  name="gender"
+                  onClick={()=>this.gameTypeRadioButtonClicked('manual')}/> Manual 
+                  <br></br>
+            
+          </div>
           <label style={displayGameMessage}>{this.state.gameMessage}</label><br></br><br></br><br></br>
         <div style={displayGameInput}>        
           <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
@@ -663,17 +701,10 @@ class App extends Component {
               </AgGridReact>
           </div>
 
-            <div>
-              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}
-              onClick={this.showHideParticle}>{this.state.showHideParticleText}</label><br></br>
-              <label style={{color:'white',textAlign:'Left', fontSize:'14px', position: 'relative'}}>
-              __________________________________________</label>
 
-              <br></br>
-            </div>
         
           <Experiment 
-            expStyle={styleParticle}
+            expStyle={displayParticle}
             particle={myParticle}
             measurement={myMeasurementResult}
             doMeasurement={this.doMeasurement}
@@ -714,6 +745,39 @@ class App extends Component {
 
 
 export default App;
+//DO THIS NEXT:
+//radiobuttons
+//  use a 'selected' label
+//    with two other radiobuttons that are the unselected options,
+//      or rather, just hide the selected option and make the selected label be it,
+//      below and larger than the radiobuttons.
+//CLEAN UP NOTES/GET UI IDEAS FROM THEM
+
+//possible new UI
+//USEFLOW:
+//  -manual and automatic 
+//  -choose a playType (man, autC, autQ)
+//    =when this happens the lower section automatically updates based on the currently
+//      selected radiobutton
+//  -set the lower section to how they want it (if auto)
+//  -hit BEGIN
+//  -if auto, either get 'waiting for other player' or the results 
+//            if the other player is finished
+//  -if manual, give input dialog to the first player to click BEGIN, how many questions?
+//  -if either player does manual, then they choose how many questions will be done 
+//    and we just use the first that many results of automatic.
+//BEHIND SCENES:
+//  -wait for both users to hit BEGIN to doo any calculating,
+//      check to see if either is manual, if they are
+//-make a group of 3 radio buttons, manual, auto classic, auto quantum 
+//  (maybe a manual quantum as well)
+//-there should be a begin button near them
+//-either when the begin button is clicked, or when a radiobutton
+//    is selected, the appropriateUI should show/hide, meaning the interface
+//    for the manual input or the automatic inputs
+//-MANUAL: now the questions, show the question #/#, show the answer buttons
+//-AUTO C: just a way for them to input what to do in the event of either question
+//-AUTO Q: show them the particle measurement setup
 
 //simple UI thoughts:
 //-there should be a simple UI that is for the laymen, but then another one that
