@@ -45,6 +45,7 @@ var myColorSecondaryB = ''
 var myMeasurementResult = -1
 var iHaveMeasured = false
 var scientistCount = 0
+var myAutoClassicAnswers = []
 
 var current_mode = 'intro'
 
@@ -56,18 +57,25 @@ class App extends Component {
     this.state = {
       knobCorrelation: 0,
       style_intro: false,
-      displayParticle: false,
+      displayAutoQuantum: false,
+      displayAutoClassic: true,
+      displayManual: false,
       styleAliceNameMarker: false,
       styleBobNameMarker:true,
       styleHelpContainerVisibility:true,
       showIntroDialog: true,
+      showQuestionNumDialog: false,
       displayDialogButtons: true,
-      displayGameInput: false,
       gameMessage: '',
       displayGameMessage: false,
-      dialogHeader: 'Create or Join',
-      dialogText: 'This game requires two players each with their own device.'+ 
+      introDialogHeader: 'Create or Join',
+      introDialogText: 'This game requires two players each with their own device.'+ 
                   'The first player creates a game, and the second joins.',
+      questionNumDialogHeader: 'QuestionNumHeader',
+      questionNumDialogText: 'QuestionNumText',
+      selectedGameType: 'autoClassic',
+      radioButtonsDisabled: false,
+      beginButtonText: 'GO',
       myStateLab: '',
       listOfQuestions: [],
       //showHideParticleText: 'Show Particle',
@@ -76,6 +84,10 @@ class App extends Component {
       bobAKnobValue: 360,
       bobBKnobValue: 360,
       correlationReadout: 'A: 100,100B: 100,100',
+      aliceAAngle: '0',
+      aliceBAngle: '0',
+      bobAAngle: '0',
+      bobBAngle: '0',
       columnDefs: [{headerName: 'AQ', field: 'aliceQ', width:45},
                     {headerName: 'BQ', field: 'bobQ', width:45},
                     {headerName: 'AA', field: 'aliceA', width:45},
@@ -85,7 +97,8 @@ class App extends Component {
     };
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
     this.showHideHelpBox = this.showHideHelpBox.bind(this);
-    this.startNewClassicGame = this.startNewClassicGame.bind(this);
+    this.handleQuestionNumSubmit = this.handleQuestionNumSubmit.bind(this);
+    this.restartClicked = this.restartClicked.bind(this);
     this.classicGameAnswer = this.classicGameAnswer.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
     //this.showHideParticle = this.showHideParticle.bind(this);
@@ -105,6 +118,25 @@ class App extends Component {
             this.doSomethingBeforeUnload();
         });
     };
+
+  handleQuestionNumSubmit(e){
+    console.log('QuestionNumSubmitted')
+        //We should check to see if other user has
+        //  answers ready for us, either they are doing an auto have clicked GO or
+        //  they have finished their manual answers
+        //      
+    this.setState({showQuestionNumDialog: false})
+    if (this.state.selectedGameType === 'manual'){
+      this.setState({displayManual: true})
+
+    }else if(this.state.selectedGameType === 'autoClassic'){
+
+    }else if(this.state.selectedGameType === 'autoQuantum'){
+
+      
+      
+    }
+  }
 
   handleIntroSubmit(e) {
     console.log('handleIntroSubmit')
@@ -157,10 +189,14 @@ class App extends Component {
 
 
 
-  startNewClassicGame(e) {
+  restartClicked(e) {
+    this.setState({radioButtonsDisabled: false})
+    if (this.state.selectedGameType === 'manual'){
+      this.setState({displayManual: false})
+    }
     current_mode = 'Classic Game'
     displayResults = 'none'
-    //this.setState({displayGameInput:true})
+    //this.setState({displayManual:true})
     currentQuestionIndex = 0
     var i;
     var oneCount = 0
@@ -200,14 +236,14 @@ class App extends Component {
 
   // showHideParticle(e) {
   //     e.preventDefault();
-  //   if(this.state.displayParticle){
+  //   if(this.state.displayAutoQuantum){
   //     console.log("experiment")
   //     current_mode = "Experiment"
   //     this.setState({showHideParticleText: 'Hide Particle'})
-  //     this.setState({displayParticle: false})
+  //     this.setState({displayAutoQuantum: false})
   //   }else{
   //     this.setState({showHideParticleText: 'Show Particle'})
-  //     this.setState({displayParticle: true})
+  //     this.setState({displayAutoQuantum: true})
   //   }
   // }
 
@@ -220,23 +256,38 @@ class App extends Component {
       myObj.set(updatedLabList)
       //iHaveMeasured = false
     })
-    this.setState({displayParticle: false})
+    this.setState({displayAutoQuantum: false})
   }
 
   gameTypeRadioButtonClicked(gameType){
     console.log('gameType',gameType)
+    this.setState({selectedGameType:gameType})  
     if (gameType === 'manual'){
-      this.setState({displayGameInput:true})
-      this.setState({displayParticle:false})
+      this.setState({displayAutoQuantum:false})
+      this.setState({displayAutoClassic:false})
+      this.setState({beginButtonText:'BEGIN'})
     }else if(gameType === 'autoClassic'){
-        this.setState({displayGameInput:false})
-        this.setState({displayParticle:false})
+      this.setState({displayAutoQuantum:false})
+      this.setState({displayAutoClassic:true})
+      this.setState({beginButtonText:'GO'})
     }else if(gameType === 'autoQuantum'){
-      this.setState({displayGameInput:false})
-      this.setState({displayParticle:true})
-      
-      
+      this.setState({displayAutoQuantum:true})
+      this.setState({displayAutoClassic:false})  
+      this.setState({beginButtonText:'GO'})    
     }
+  }
+  beginGame(){
+    console.log('gameBegan')
+    this.setState({radioButtonsDisabled: true})
+    this.setState({showQuestionNumDialog: true})
+
+  }
+
+  autoClassicRadioButtonClicked(questionNum, answer){
+    console.log('questionNum',questionNum)
+    
+    myAutoClassicAnswers[questionNum]=answer
+    console.log('myAutoClassicAnswers[questionNum]',myAutoClassicAnswers[questionNum])
   }
 
   classicGameAnswer(myAnswer){
@@ -247,7 +298,7 @@ class App extends Component {
     
     if (currentQuestionIndex < highestQuestionIndex){
     var listOfQuestions = this.state.listOfQuestions
-    this.setState({displayGameInput:true})
+    this.setState({displayManual:true})
     myObj.transaction(function(currentValue){
     var updatedLabList = currentValue
     listOfAnswers[currentQuestionIndex] = myAnswer
@@ -268,17 +319,7 @@ class App extends Component {
     }
 
   }
-    //once all the questions have been answered, it tells the user who completes first
-    //  that the other is still answering. once both done, they get to see their report
-    //  -once all questions have been answered, set a variable in the db with the questions
-    //    and the answers. before then the variable should be none or null.
-    //  -when new game is started, set the question/answer to none/null
-    //after game is complete, the complete results should be shown, every decision that both
-    //  players made, whether they were right or wrong, percent win
-    //there need not be player to player connection until both players have answered all their questions,
-    //  the player should keep track of all their questions and answers locally, once all questions
-    //  are answered, they can be sent to the server where they are shared with the other player,
-    //  and then both players see the results
+
 
   onSliderChangeB (value)  {
     console.log('sliderChangeB',value)
@@ -289,10 +330,10 @@ class App extends Component {
     if (value == '70'){angle='292.5'}
     if (value == '90'){angle='270'}
 
-
     if (myName === 'Alice'){
       this.setState({aliceBKnobValue: angle}, function () {
             this.setCorrelationReadout()
+            this.setState({aliceBAngle: 360-parseFloat(angle)})
         });
       myObj.transaction(function(currentValue){
         var updatedLabList = currentValue
@@ -302,6 +343,7 @@ class App extends Component {
     }else{
       this.setState({bobBKnobValue: angle}, function () {
             this.setCorrelationReadout()
+            this.setState({bobBAngle: 360-parseFloat(angle)})
         });
       myObj.transaction(function(currentValue){
         var updatedLabList = currentValue
@@ -322,6 +364,7 @@ class App extends Component {
     if (myName === 'Alice'){
       this.setState({aliceAKnobValue: angle}, function () {
             this.setCorrelationReadout()
+            this.setState({aliceAAngle: 360-parseFloat(angle)})
         });
       myObj.transaction(function(currentValue){
         var updatedLabList = currentValue
@@ -331,6 +374,7 @@ class App extends Component {
     }else{
       this.setState({bobAKnobValue: angle}, function () {
             this.setCorrelationReadout()
+            this.setState({bobAAngle: 360-parseFloat(angle)})
         });
       myObj.transaction(function(currentValue){
         var updatedLabList = currentValue
@@ -360,6 +404,7 @@ class App extends Component {
       if (myName === 'Alice'){
         this.setState({correlationReadout: 'A: ' + aliceBobCorrelation[0] +','+ aliceBobCorrelation[1] +
           'B: ' + aliceBobCorrelation[2] +','+ aliceBobCorrelation[3]})
+
       }else{
         this.setState({correlationReadout: 'A: ' + aliceBobCorrelation[0] +','+ aliceBobCorrelation[2] +
           'B: ' + aliceBobCorrelation[1] +','+ aliceBobCorrelation[3]})
@@ -404,7 +449,7 @@ class App extends Component {
       myObj.set(updatedLabList)
       }
     })
-    this.setState({displayParticle: false})
+    this.setState({displayAutoQuantum: false})
   }
 
     deleteLab = () => {
@@ -426,16 +471,21 @@ class App extends Component {
               console.log('lab is being deleted')
               this.deleteLab()
               this.setState({style_intro: false})
-              //this.setState({displayParticle: true})
+              //this.setState({displayAutoQuantum: true})
           }else{
               if (myName === 'Alice'){
               this.setState({bobAKnobValue: labs[myGameRefNum].bobAKnobValue})
               this.setState({bobBKnobValue: labs[myGameRefNum].bobBKnobValue})
+              this.setState({bobAAngle: 360-labs[myGameRefNum].bobAKnobValue})
+              this.setState({bobBAngle: 360-labs[myGameRefNum].bobBKnobValue})
               this.setCorrelationReadout()
               //this.forceUpdate()
             }else if (myName === 'Bob'){
               this.setState({aliceAKnobValue: labs[myGameRefNum].aliceAKnobValue})
               this.setState({aliceBKnobValue: labs[myGameRefNum].aliceBKnobValue})
+              this.setState({aliceAAngle: 360-labs[myGameRefNum].aliceAKnobValue})
+              this.setState({aliceBAngle: 360-labs[myGameRefNum].aliceBKnobValue})
+              //console.log('this.state.aliceBKnobValue!!!!',this.state.aliceBKnobValue)
               this.setCorrelationReadout()
               //this.forceUpdate()
             }
@@ -452,14 +502,13 @@ class App extends Component {
             if (labs[myGameRefNum].playerOne === 'Bob'){
               if (this.state.showIntroDialog === true){
                 this.setState({showIntroDialog: false})
-                //console.log('showIntroDialog',this.state.showIntroDialog)
               }
               scientistCount = '2'
             if (current_mode === 'Classic Game'){
                 console.log('myName',myName)
                 if (myName === 'Alice' && labs[myGameRefNum].aliceGameAnswers
                    && !labs[myGameRefNum].bobGameAnswers){
-                        this.setState({displayGameInput:false})
+                        this.setState({displayManual:false})
                         this.setState({gameMessage:'Waiting for Bob to finish'})
                         this.setState({displayGameMessage:true})
                         console.log('this.state.displayGameMessageAlice',this.state.displayGameMessage)
@@ -467,7 +516,7 @@ class App extends Component {
                 if (myName === 'Bob' && labs[myGameRefNum].bobGameAnswers
                    && !labs[myGameRefNum].aliceGameAnswers){
                   console.log('this is true')
-                        this.setState({displayGameInput:false});
+                        this.setState({displayManual:false});
                         this.setState({gameMessage:'Waiting for Alice to finish'});
                         this.setState({displayGameMessage:true});
                         //this.setState({styleAliceNameMarker: true});
@@ -475,7 +524,7 @@ class App extends Component {
                 }
               if (labs[myGameRefNum].aliceGameAnswers && labs[myGameRefNum].bobGameAnswers){
                   displayResults = null
-                  this.setState({displayGameInput:false})
+                  this.setState({displayManual:false})
                   const aliceAnswers = labs[myGameRefNum].aliceGameAnswers
                   const aliceQuestions = labs[myGameRefNum].aliceGameQuestions
                   const bobAnswers = labs[myGameRefNum].bobGameAnswers
@@ -558,12 +607,12 @@ class App extends Component {
       console.log("myGameRefNum", myGameRefNum)
       console.log("this.state.myStateLab",this.state.myStateLab)
       myGameName = this.state.myStateLab
-      this.startNewClassicGame()
+      this.restartClicked()
       if (myName === 'Bob'){
         this.setState({showIntroDialog: false})
       }else{
-        this.setState({dialogText: '..for the other player to join.'})//this
-        this.setState({dialogHeader: 'Waiting..'})      
+        this.setState({introDialogText: '..for the other player to join.'})//this
+        this.setState({introDialogHeader: 'Waiting..'})      
         this.setState({displayDialogButtons: false})
       } 
 
@@ -575,12 +624,11 @@ class App extends Component {
       }
   }
 
-  setGender(event) {
-    console.log(event.target.value);
-  }
 
   render() { 
-    const displayParticle = this.state.displayParticle ? {} : {display: 'none'};
+    const displayAutoQuantum = this.state.displayAutoQuantum ? {} : {display: 'none'};
+    const displayAutoClassic = this.state.displayAutoClassic ? {} : {display: 'none'};
+    const displayManual = this.state.displayManual ? {} : {display: 'none'} ;
     const styleAliceName = {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 140, left: 332};
     const styleBobName = {color:'#404040',fontSize:'12px',
@@ -594,7 +642,20 @@ class App extends Component {
     const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
       {display: 'none'} : {};
     const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
-    const displayGameInput = this.state.displayGameInput ? {} : {display: 'none'} ;
+    const gameTypeStyle = {backgroundColor: '#8c8c8c',
+                            padding: '15px',
+                            paddingBottom: '40px'}
+    const gameTypeRadioButtonStyle = {fontSize:'14px',
+                              textAlign:'left',
+                              fontFamily:'Consolas'}
+    const autoClassicQuestionRadioButtonStyle = {fontSize:'14px',
+                              textAlign:'center',
+                              fontFamily:'Consolas'}
+    const beginButtonStyle = {fontSize:'24px',
+                              marginTop: '-10px',
+                              float: 'right',
+                              textAlign:'right',
+                              fontFamily:'Consolas'}
     const displayGameMessage = this.state.displayGameMessage ? 
       {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
     const MainContainer = {padding: "20px",
@@ -632,20 +693,21 @@ class App extends Component {
 
   const styleMainHeader={color:'#8c8c8c',
                           fontFamily:'Consolas',
-                          fontSize:'40px',
+                          fontSize:'60px',
                           fontWeight: "bold",
                           float:'top',
                           textAlign:'top'}
+
+  const selectedGameTypeStyle={backgroundColor: '#8c8c8c'}
 
 
     return (
     <div>
       <Dialog open={this.state.showIntroDialog}
-              onClose={this.handleClose}
               aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">{this.state.dialogHeader}</DialogTitle>
+        <DialogTitle id="form-dialog-title">{this.state.introDialogHeader}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{this.state.dialogText}</DialogContentText>
+          <DialogContentText>{this.state.introDialogText}</DialogContentText>
             <TextField
               style = {displayDialogButtons}
               autoFocus
@@ -656,42 +718,110 @@ class App extends Component {
               onChange={this.handleIntroChange}
               fullWidth/>
         </DialogContent>
+        <DialogActions>
+          <Button style={displayDialogButtons} 
+                  onClick={this.handleIntroSubmit}>Create</Button>
+          <Button style={displayDialogButtons} 
+                  onClick={this.handleIntroSubmit}>Join</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={this.state.showQuestionNumDialog}
+              aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">{this.state.questionNumDialogHeader}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{this.state.questionNumDialogText}</DialogContentText>
+            <TextField
+              style = {displayDialogButtons}
+              autoFocus
+              ref="myField"
+              margin="dense"
+              id="number"
+              label="Number of questions:"
+              onChange={this.handleQuestionNumChange}
+              fullWidth/>
+        </DialogContent>
           <DialogActions>
             <Button style={displayDialogButtons} 
-                    onClick={this.handleIntroSubmit}>Create</Button>
-            <Button style={displayDialogButtons} 
-                    onClick={this.handleIntroSubmit}>Join</Button>
+                    onClick={this.handleQuestionNumSubmit}>OK</Button>
           </DialogActions>
       </Dialog>
+
     <div style={InfoBar}>
       <div style={MainContainer}>
         <div className="App">
-          <label style={styleMainHeader}>CHSH game</label>
-          <div onChange={this.setGender.bind(this)}>
+          <label style={styleMainHeader}>CHSH</label><br></br><br></br>
+          <div style={gameTypeStyle}>
+            <div style={gameTypeRadioButtonStyle}>
+              <input type="radio" 
+                    value="autoClassic" 
+                    name="gameType"
+                    defaultChecked                
+                    disabled={this.state.radioButtonsDisabled}
+                    onClick={()=>this.gameTypeRadioButtonClicked('autoClassic')}/> Auto (Classic) 
+                    <br></br>
+              <input type="radio" 
+                    value="autoQuantum" 
+                    name="gameType"
+                    disabled={this.state.radioButtonsDisabled}
+                    onClick={()=>this.gameTypeRadioButtonClicked('autoQuantum')}/> Auto (Quantum) 
+                    <br></br>
             <input type="radio" 
-                  value="autoClassic" 
-                  name="gender"
-                  onClick={()=>this.gameTypeRadioButtonClicked('autoClassic')}/> Auto (Classic) 
-                  <br></br>
-            <input type="radio" 
-                  value="autoQuantum" 
-                  name="gender"
-                  onClick={()=>this.gameTypeRadioButtonClicked('autoQuantum')}/> Auto (Quantum) 
-                  <br></br>
-          <input type="radio" 
-                  value="manual" 
-                  name="gender"
-                  onClick={()=>this.gameTypeRadioButtonClicked('manual')}/> Manual 
-                  <br></br>
-            
+                    value="manual" 
+                    name="gameType"
+                    disabled={this.state.radioButtonsDisabled}
+                    onClick={()=>this.gameTypeRadioButtonClicked('manual')}/> Manual 
+                    <br></br>
+              
+            </div>
+          
+          <button style={beginButtonStyle}
+                  onClick={()=>this.beginGame()}>{this.state.beginButtonText}</button>
           </div>
-          <label style={displayGameMessage}>{this.state.gameMessage}</label><br></br><br></br><br></br>
-        <div style={displayGameInput}>        
-          <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
-          <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>
-        
-          <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-          <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+          <br></br><br></br><br></br>
+        <div style={displayManual}>  
+          <div style={selectedGameTypeStyle}>
+            <br></br>       
+            <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
+            <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>          
+            <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
+            <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+          </div>
+        </div>
+        <div style={displayAutoClassic}>  
+          <div style={selectedGameTypeStyle}>
+            <br></br> 
+              <label>Always answer Q0 with:</label><br></br>                     
+              <div style={autoClassicQuestionRadioButtonStyle}>
+                <input type="radio" 
+                      value="0" 
+                      name="question0"
+                      defaultChecked                
+                      disabled={this.state.radioButtonsDisabled}
+                      onClick={()=>this.autoClassicRadioButtonClicked('0','0')}/> 0 
+                <input type="radio" 
+                      value="1" 
+                      name="question0"
+                      disabled={this.state.radioButtonsDisabled}
+                      onClick={()=>this.autoClassicRadioButtonClicked('0','1')}/> 1            
+              </div>
+              <br></br>
+              <label>Always answer Q1 with:</label><br></br>                     
+              <div style={autoClassicQuestionRadioButtonStyle}>
+                <input type="radio" 
+                      value="0"
+                      name="question1"
+                      defaultChecked                
+                      disabled={this.state.radioButtonsDisabled}
+                      onClick={()=>this.autoClassicRadioButtonClicked('1','0')}/> 0
+                <input type="radio" 
+                      value="1" 
+                      name="question1"
+                      disabled={this.state.radioButtonsDisabled}
+                      onClick={()=>this.autoClassicRadioButtonClicked('1','1')}/> 1             
+              </div>
+              <br></br> 
+          </div>
         </div>
           <div className="ag-theme-balham"
               style={{ height: '400px', width: '250px', display: displayResults }}>
@@ -702,9 +832,9 @@ class App extends Component {
           </div>
 
 
-        
+        <div style = {selectedGameTypeStyle}>
           <Experiment 
-            expStyle={displayParticle}
+            expStyle={displayAutoQuantum}
             particle={myParticle}
             measurement={myMeasurementResult}
             doMeasurement={this.doMeasurement}
@@ -721,13 +851,18 @@ class App extends Component {
             onSliderChangeA = {(e)=>this.onSliderChangeA(e)}
             onSliderChangeB = {(e)=>this.onSliderChangeB(e)}
             correlationReadout = {this.state.correlationReadout}
+            aliceAAngle = {this.state.aliceAAngle}
+            aliceBAngle = {this.state.aliceBAngle}
+            bobAAngle = {this.state.bobAAngle}
+            bobBAngle = {this.state.bobBAngle}
           />
+        </div>
 
           </div>
         </div>
       <div>
         <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
-        <label style={styleInfoBarRestart} onClick={this.startNewClassicGame}>⟲</label><br></br>
+        <label style={styleInfoBarRestart} onClick={this.restartClicked}>⟲</label><br></br>
         <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>       
         <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
       </div>
@@ -801,6 +936,18 @@ export default App;
 //color status
 //join/create
 
+//notes gathered/needs sorted:
+    //once all the questions have been answered, it tells the user who completes first
+    //  that the other is still answering. once both done, they get to see their report
+    //  -once all questions have been answered, set a variable in the db with the questions
+    //    and the answers. before then the variable should be none or null.
+    //  -when new game is started, set the question/answer to none/null
+    //after game is complete, the complete results should be shown, every decision that both
+    //  players made, whether they were right or wrong, percent win
+    //there need not be player to player connection until both players have answered all their questions,
+    //  the player should keep track of all their questions and answers locally, once all questions
+    //  are answered, they can be sent to the server where they are shared with the other player,
+    //  and then both players see the results
 
 
 //new experiment mode:

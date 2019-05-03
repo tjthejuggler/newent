@@ -13,12 +13,13 @@ class Experiment extends Component {
 
     	return(
 	      <div style={this.props.expStyle}>
-	      	<br></br><br></br>
-	        <label>Particle state: {this.props.particle}</label><br></br>
-	        <label>myMeasurementResult: {this.props.measurement}</label><br></br>
-	        <label>{this.props.correlationReadout}</label>
-	        <br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-	        <br></br><br></br>
+	      <br></br>
+	      	<label style={{color:'red', float: 'left'}}>Alice A: {this.props.aliceAAngle}</label><br></br>
+	      	<label style={{color:'orange', float: 'left'}}>Alice B: {this.props.aliceBAngle}</label><br></br>
+	      	<label style={{color:'blue', float: 'left'}}>Bob A: {this.props.bobAAngle}</label><br></br>
+	      	<label style={{color:'green', float: 'left'}}>Bob B: {this.props.bobBAngle}</label><br></br>
+	      	<br></br>
+
     <div style={{position: 'relative', zIndex:10}}>
       <Slider min={0} 
       	onChange={(e)=>this.props.onSliderChangeA(e)}
@@ -34,7 +35,7 @@ class Experiment extends Component {
           marginLeft: -14,
           marginTop: -9,
           backgroundColor: this.props.colorSecondaryA}} 
-        marks={{ 10: '0', 30: 'Pi/8', 50: 'Pi/4', 70: '3Pi/8', 90: 'Pi/2'}} 
+        marks={{ 10: '', 30: '', 50: '', 70: '', 90: ''}} 
         step={null} />
     </div>
     <br></br><br></br>
@@ -82,7 +83,11 @@ class Experiment extends Component {
         step={null} />
         </div>
     </div>
-    <br></br><br></br>	        
+    	        <label>Particle state: {this.props.particle}</label><br></br>
+	        <label>myMeasurementResult: {this.props.measurement}</label><br></br>
+	        <label>{this.props.correlationReadout}</label>
+	        <br></br><br></br>
+      
        
 
 	  </div>
