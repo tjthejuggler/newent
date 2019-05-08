@@ -45,7 +45,8 @@ var myColorSecondaryB = ''
 var myMeasurementResult = -1
 var iHaveMeasured = false
 var scientistCount = 0
-var myAutoClassicAnswers = []
+var myAutoClassicAnswers = ['0','0']
+var numberOfQuestions = 0
 
 var current_mode = 'intro'
 
@@ -65,7 +66,7 @@ class App extends Component {
       styleHelpContainerVisibility:true,
       showIntroDialog: true,
       showQuestionNumDialog: false,
-      displayDialogButtons: true,
+      displayIntroDialogButtons: true,
       gameMessage: '',
       displayGameMessage: false,
       introDialogHeader: 'Create or Join',
@@ -96,14 +97,19 @@ class App extends Component {
       resultsGridRowData: []
     };
     this.handleIntroSubmit = this.handleIntroSubmit.bind(this);
+    this.handleIntroKeyPress = this.handleIntroKeyPress.bind(this);
+    this.handleQuestionNumKeyPress = this.handleQuestionNumKeyPress.bind(this);    
     this.showHideHelpBox = this.showHideHelpBox.bind(this);
     this.handleQuestionNumSubmit = this.handleQuestionNumSubmit.bind(this);
+    this.handleQuestionNumChange = this.handleQuestionNumChange.bind(this);
     this.restartClicked = this.restartClicked.bind(this);
-    this.classicGameAnswer = this.classicGameAnswer.bind(this);
+    this.setShouldRestartDBVariable = this.setShouldRestartDBVariable.bind(this);
+    this.manualGameAnswer = this.manualGameAnswer.bind(this);
     this.createEntanglement = this.createEntanglement.bind(this);
     //this.showHideParticle = this.showHideParticle.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
     this.handleIntroChange = this.handleIntroChange.bind(this);
+    this.submitQuestionsAndAnswersToFirebase = this.submitQuestionsAndAnswersToFirebase.bind(this);
   }
     doSomethingBeforeUnload = () => {
     myObj.transaction(function(currentValue){
@@ -119,30 +125,38 @@ class App extends Component {
         });
     };
 
-  handleQuestionNumSubmit(e){
-    console.log('QuestionNumSubmitted')
-        //We should check to see if other user has
-        //  answers ready for us, either they are doing an auto have clicked GO or
-        //  they have finished their manual answers
-        //      
-    this.setState({showQuestionNumDialog: false})
-    if (this.state.selectedGameType === 'manual'){
-      this.setState({displayManual: true})
-
-    }else if(this.state.selectedGameType === 'autoClassic'){
-
-    }else if(this.state.selectedGameType === 'autoQuantum'){
-
-      
-      
+    handleQuestionNumChange(event, newValue) {
+        console.log('handleQuestionNumChange', event.target.value)
+        numberOfQuestions = event.target.value
     }
+
+  handleQuestionNumKeyPress(target) {
+    if(target.charCode==13){  
+      this.handleQuestionNumSubmit()  
+    } 
   }
 
-  handleIntroSubmit(e) {
+  handleQuestionNumSubmit(event, newValue){
+    //console.log('QuestionNumSubmitted', event.target.value)
+    myObj.transaction(function(currentValue){
+      //console.log('currentValue',currentValue)
+      var updatedLabList = currentValue
+      updatedLabList[myGameRefNum].numberOfQuestions = numberOfQuestions
+      myObj.set(updatedLabList)
+    })
+      this.startGame()
+  }
+
+  handleIntroKeyPress(target) {
+    if(target.charCode==13){  
+      this.handleIntroSubmit()  
+    } 
+  }
+
+  handleIntroSubmit() {
     console.log('handleIntroSubmit')
-    e.preventDefault();
+    //e.preventDefault();
     var shouldJoinOrCreate = false
-    //console.log('ffff',e.target.value)
     myObj.transaction(function(currentValue){
       console.log('currentValue',currentValue)
       var currentLabsList = []
@@ -178,13 +192,8 @@ class App extends Component {
       handleIntroChange(event, newValue) {
         console.log('handleIntroChange', event.target.value)
         myGameName = event.target.value
-        event.persist(); // allow native event access (see: https://facebook.github.io/react/docs/events.html)
-        // give react a function to set the state asynchronously.
-        // here it's using the "name" value set on the TextField
-        // to set state.person.[firstname|lastname].            
-        //this.setState((state) => state.myStateLab = newValue);
+        event.persist(); 
         this.setState({myStateLab: event.target.value})
-
     }
 
 
@@ -196,22 +205,8 @@ class App extends Component {
     }
     current_mode = 'Classic Game'
     displayResults = 'none'
-    //this.setState({displayManual:true})
     currentQuestionIndex = 0
-    var i;
-    var oneCount = 0
-    //var showAnswerButtons = false
-
-    var tempListOfQuestions = this.state.listOfQuestions    
-    for (i = 0; i < highestQuestionIndex; i++) { 
-      tempListOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))
-      this.setState({listOfQuestions : tempListOfQuestions})
-      if (tempListOfQuestions[i] === 1){oneCount = oneCount+1}
-    }
-    console.log('this.state.listOfQuestions',this.state.listOfQuestions)
-    console.log(oneCount)
-    iHaveMeasured = false
-    
+    iHaveMeasured = false    
     myObj.transaction(function(currentValue){
       var updatedLabList = currentValue
       if (updatedLabList[myGameRefNum].playerOne === 'Bob'){
@@ -219,11 +214,23 @@ class App extends Component {
         updatedLabList[myGameRefNum].aliceGameAnswers = []
         updatedLabList[myGameRefNum].bobGameQuestions = []
         updatedLabList[myGameRefNum].bobGameAnswers = []
-        //showAnswerButtons = true
+        updatedLabList[myGameRefNum].numberOfQuestions = 0
       }
+      if (updatedLabList[myGameRefNum].shouldRestart == 'false'){
+        updatedLabList[myGameRefNum].shouldRestart = 'true'
+      }else{
+        updatedLabList[myGameRefNum].shouldRestart = 'false'
+      }
+      myObj.set(updatedLabList)    
+    })
+  }
+
+  setShouldRestartDBVariable(toSetTo){
+    myObj.transaction(function(currentValue){
+      var updatedLabList = currentValue
+      updatedLabList[myGameRefNum].shouldRestart = toSetTo
       myObj.set(updatedLabList)
     })
-
   }
 
   showHideHelpBox(e) {
@@ -233,19 +240,6 @@ class App extends Component {
       this.setState({styleHelpContainerVisibility: true})
     }
   }
-
-  // showHideParticle(e) {
-  //     e.preventDefault();
-  //   if(this.state.displayAutoQuantum){
-  //     console.log("experiment")
-  //     current_mode = "Experiment"
-  //     this.setState({showHideParticleText: 'Hide Particle'})
-  //     this.setState({displayAutoQuantum: false})
-  //   }else{
-  //     this.setState({showHideParticleText: 'Show Particle'})
-  //     this.setState({displayAutoQuantum: true})
-  //   }
-  // }
 
   createEntanglement(){
     myObj.transaction(function(currentValue){
@@ -276,50 +270,102 @@ class App extends Component {
       this.setState({beginButtonText:'GO'})    
     }
   }
-  beginGame(){
-    console.log('gameBegan')
-    this.setState({radioButtonsDisabled: true})
-    this.setState({showQuestionNumDialog: true})
+  beginButtonClicked(){
 
+    console.log('gameBegan', numberOfQuestions)
+    this.setState({radioButtonsDisabled: true})
+    if (numberOfQuestions == 0){
+      this.setState({showQuestionNumDialog: true})
+    }else{
+      this.startGame()
+    }
+  }
+
+  startGame(){
+    console.log('startgame')
+    console.log('listOfQuestionsPRE',this.state.listOfQuestions)
+    this.setState({listOfQuestions : this.createListOfQuestions()}, function () {  
+      console.log('listOfQuestionsPOST',this.state.listOfQuestions)
+      this.setState({showQuestionNumDialog: false})
+      if (this.state.selectedGameType === 'manual'){
+        this.setState({displayManual: true})
+      }else if(this.state.selectedGameType === 'autoClassic'){
+        var i
+        for (i=0; i<numberOfQuestions; i++){
+          if (this.state.listOfQuestions[i] == '0'){
+              listOfAnswers[i] = myAutoClassicAnswers['0']
+          }else if (this.state.listOfQuestions[i] == '1'){
+              listOfAnswers[i] = myAutoClassicAnswers['1']
+          }
+        }
+        this.submitQuestionsAndAnswersToFirebase()
+      }else if(this.state.selectedGameType === 'autoQuantum'){
+          //once both players have clicked start
+          //I think either way the first quantum player should use random answers no matter the question,
+          //  but when a second quantum player clicks GO, then their answers are determined based on the already
+          //  posted answers of the first player
+        var i
+        for (i=0; i<numberOfQuestions; i++){
+          if (this.state.listOfQuestions[i] == '0'){
+              listOfAnswers[i] = this.getQuantumAnswer('0',i)
+          }else if (this.state.listOfQuestions[i] == '1'){
+              listOfAnswers[i] = this.getQuantumAnswer('1',i)
+          }
+        }
+        this.submitQuestionsAndAnswersToFirebase()
+        
+      }
+
+    })
+  }
+
+  createListOfQuestions(){
+    var i;
+    var oneCount = 0
+    var tempListOfQuestions = []    
+    console.log('numberOfQuestions',numberOfQuestions)
+    for (i = 0; i < numberOfQuestions; i++) { 
+      tempListOfQuestions[i] = (Math.floor(Math.random() * Math.floor(2)))      
+      if (tempListOfQuestions[i] === 1){oneCount = oneCount+1}
+    }
+    return tempListOfQuestions
   }
 
   autoClassicRadioButtonClicked(questionNum, answer){
-    console.log('questionNum',questionNum)
-    
+    console.log('questionNum',questionNum)    
     myAutoClassicAnswers[questionNum]=answer
     console.log('myAutoClassicAnswers[questionNum]',myAutoClassicAnswers[questionNum])
   }
 
-  classicGameAnswer(myAnswer){
+  manualGameAnswer(myAnswer){
     console.log('myAnswer',myAnswer)
-    //todo: dont let the user click the answer buttons if they have already answered all the questions
-    //    this could be done by making the buttons be gone or by making an alert when a button is clicked
-    //    -look through the notes scattered around and clean them up
-    
-    if (currentQuestionIndex < highestQuestionIndex){
-    var listOfQuestions = this.state.listOfQuestions
-    this.setState({displayManual:true})
-    myObj.transaction(function(currentValue){
-    var updatedLabList = currentValue
-    listOfAnswers[currentQuestionIndex] = myAnswer
-    currentQuestionIndex++
-    if (currentQuestionIndex === highestQuestionIndex){
-      console.log('listOfQuestions',listOfQuestions)
-        if (myNumber === 0){
-          updatedLabList[myGameRefNum].aliceGameQuestions = listOfQuestions
-          updatedLabList[myGameRefNum].aliceGameAnswers = listOfAnswers
-        }
-        if (myNumber === 1){
-          updatedLabList[myGameRefNum].bobGameQuestions = listOfQuestions
-          updatedLabList[myGameRefNum].bobGameAnswers = listOfAnswers
-        }
-        myObj.set(updatedLabList)
-        }
-      })
+    if (currentQuestionIndex < numberOfQuestions){
+      this.setState({displayManual:true})
+      listOfAnswers[currentQuestionIndex] = myAnswer
+      currentQuestionIndex++
+      if (currentQuestionIndex == numberOfQuestions){
+        this.submitQuestionsAndAnswersToFirebase()
+      }
     }
-
   }
 
+  submitQuestionsAndAnswersToFirebase(){
+    console.log('submitQuestionsAndAnswersToFirebase')
+    var listOfQuestions = this.state.listOfQuestions
+    console.log('listOfAnswers',listOfAnswers)
+    console.log('listOfQuestions',listOfQuestions)
+    myObj.transaction(function(currentValue){
+      var updatedLabList = currentValue
+          if (myNumber === 0){
+            updatedLabList[myGameRefNum].aliceGameQuestions = listOfQuestions
+            updatedLabList[myGameRefNum].aliceGameAnswers = listOfAnswers
+          }else if (myNumber === 1){
+            updatedLabList[myGameRefNum].bobGameQuestions = listOfQuestions
+            updatedLabList[myGameRefNum].bobGameAnswers = listOfAnswers
+          }
+          myObj.set(updatedLabList)          
+    })
+  }
 
   onSliderChangeB (value)  {
     console.log('sliderChangeB',value)
@@ -473,6 +519,10 @@ class App extends Component {
               this.setState({style_intro: false})
               //this.setState({displayAutoQuantum: true})
           }else{
+              if (labs[myGameRefNum].shouldRestart == 'true'){
+                this.restartClicked()
+                //this.setShouldRestartDBVariable('false')
+              }
               if (myName === 'Alice'){
               this.setState({bobAKnobValue: labs[myGameRefNum].bobAKnobValue})
               this.setState({bobBKnobValue: labs[myGameRefNum].bobBKnobValue})
@@ -489,7 +539,8 @@ class App extends Component {
               this.setCorrelationReadout()
               //this.forceUpdate()
             }
-              
+            
+            numberOfQuestions = labs[myGameRefNum].numberOfQuestions
             
             
             console.log('labs[myGameRefNum]')
@@ -531,10 +582,14 @@ class App extends Component {
                   const bobQuestions = labs[myGameRefNum].bobGameQuestions
                   var gridData = []
                   var i
-                  for (i = 0; i < highestQuestionIndex; i++) { 
+                  var correctCounter = 0
+                  for (i = 0; i < numberOfQuestions; i++) { 
                       var currentResult = 'wrong'
-                      if (aliceQuestions[i]*bobQuestions[i]===(aliceAnswers[i]+bobAnswers[i])%2){
+                      if (parseInt(aliceQuestions[i])*parseInt(bobQuestions[i])===
+                          (parseInt(aliceAnswers[i])+parseInt(bobAnswers[i]))%2){
+                        console.log('currentResult',currentResult)
                       currentResult = 'right'
+                      correctCounter++
                     }
                         gridData.push({ aliceQ: aliceQuestions[i], 
                                         bobQ: bobQuestions[i], 
@@ -542,6 +597,7 @@ class App extends Component {
                                         bobA: bobAnswers[i],
                                         result: currentResult   })
                       }
+                  console.log('correctCounter',correctCounter)
                   this.setState({resultsGridRowData: gridData}) 
                 }
               }           
@@ -584,6 +640,7 @@ class App extends Component {
                           playerOne: 'None',
                           particle: '-1',
                           labClosed: 'false',
+                          shouldRestart: 'false',
                           aliceGameQuestions: [],
                           aliceGameAnswers: [],
                           bobGameQuestions: [],
@@ -591,7 +648,8 @@ class App extends Component {
                           aliceAKnobValue: 360,
                           aliceBKnobValue: 360,
                           bobAKnobValue: 360,
-                          bobBKnobValue: 360};
+                          bobBKnobValue: 360,
+                          numberOfQuestions: 0};
       myNumber = 0
       myName = 'Alice'
       myColorPrimaryA = 'red'
@@ -613,7 +671,7 @@ class App extends Component {
       }else{
         this.setState({introDialogText: '..for the other player to join.'})//this
         this.setState({introDialogHeader: 'Waiting..'})      
-        this.setState({displayDialogButtons: false})
+        this.setState({displayIntroDialogButtons: false})
       } 
 
 
@@ -641,7 +699,7 @@ class App extends Component {
                             position: 'fixed', top: 160, left: 325};
     const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
       {display: 'none'} : {};
-    const displayDialogButtons = this.state.displayDialogButtons ? {} : {display: 'none'} ;
+    const displayIntroDialogButtons = this.state.displayIntroDialogButtons ? {} : {display: 'none'} ;
     const gameTypeStyle = {backgroundColor: '#8c8c8c',
                             padding: '15px',
                             paddingBottom: '40px'}
@@ -709,19 +767,20 @@ class App extends Component {
         <DialogContent>
           <DialogContentText>{this.state.introDialogText}</DialogContentText>
             <TextField
-              style = {displayDialogButtons}
+              style = {displayIntroDialogButtons}
               autoFocus
               ref="myField"
               margin="dense"
               id="name"
               label="Game name:"
               onChange={this.handleIntroChange}
+              onKeyPress={this.handleIntroKeyPress}
               fullWidth/>
         </DialogContent>
         <DialogActions>
-          <Button style={displayDialogButtons} 
+          <Button style={displayIntroDialogButtons} 
                   onClick={this.handleIntroSubmit}>Create</Button>
-          <Button style={displayDialogButtons} 
+          <Button style={displayIntroDialogButtons} 
                   onClick={this.handleIntroSubmit}>Join</Button>
         </DialogActions>
       </Dialog>
@@ -732,18 +791,17 @@ class App extends Component {
         <DialogContent>
           <DialogContentText>{this.state.questionNumDialogText}</DialogContentText>
             <TextField
-              style = {displayDialogButtons}
               autoFocus
               ref="myField"
               margin="dense"
               id="number"
               label="Number of questions:"
               onChange={this.handleQuestionNumChange}
+              onKeyPress={this.handleQuestionNumKeyPress}
               fullWidth/>
         </DialogContent>
           <DialogActions>
-            <Button style={displayDialogButtons} 
-                    onClick={this.handleQuestionNumSubmit}>OK</Button>
+            <Button onClick={this.handleQuestionNumSubmit}>OK</Button>
           </DialogActions>
       </Dialog>
 
@@ -776,16 +834,16 @@ class App extends Component {
             </div>
           
           <button style={beginButtonStyle}
-                  onClick={()=>this.beginGame()}>{this.state.beginButtonText}</button>
+                  onClick={()=>this.beginButtonClicked()}>{this.state.beginButtonText}</button>
           </div>
           <br></br><br></br><br></br>
         <div style={displayManual}>  
           <div style={selectedGameTypeStyle}>
             <br></br>       
             <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
-            <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {highestQuestionIndex}</label><br></br>          
-            <button onClick={()=>this.classicGameAnswer(0)}>first answer</button>
-            <button onClick={()=>this.classicGameAnswer(1)}>second answer</button><br></br><br></br>
+            <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {numberOfQuestions}</label><br></br>          
+            <button onClick={()=>this.manualGameAnswer(0)}>first answer</button>
+            <button onClick={()=>this.manualGameAnswer(1)}>second answer</button><br></br><br></br>
           </div>
         </div>
         <div style={displayAutoClassic}>  
@@ -881,110 +939,35 @@ class App extends Component {
 
 export default App;
 //DO THIS NEXT:
-//radiobuttons
-//  use a 'selected' label
-//    with two other radiobuttons that are the unselected options,
-//      or rather, just hide the selected option and make the selected label be it,
-//      below and larger than the radiobuttons.
+
 //CLEAN UP NOTES/GET UI IDEAS FROM THEM
+//-hook up the quantum measuring devices up to the automatical question answering
+//    I think we will need to just modify the current function we have that does single measurements
+//-find out which functions are never being used
 
-//possible new UI
-//USEFLOW:
-//  -manual and automatic 
-//  -choose a playType (man, autC, autQ)
-//    =when this happens the lower section automatically updates based on the currently
-//      selected radiobutton
-//  -set the lower section to how they want it (if auto)
-//  -hit BEGIN
-//  -if auto, either get 'waiting for other player' or the results 
-//            if the other player is finished
-//  -if manual, give input dialog to the first player to click BEGIN, how many questions?
-//  -if either player does manual, then they choose how many questions will be done 
+//-move into more files, use experiment.js as an example
+//-change file/function names, 'experiment.js' is not a good name
+//-Combine onSliderChangeB and onSliderChangeA
+//-make subheaders for different sections
+//-get quantum(auto) working
+//-auto fill number of questions based on selected game type
+//-make enter key submit dialogs
+//  -this is done on the first dialog, copy it to second
+//-if either player does manual, then they choose how many questions will be done 
 //    and we just use the first that many results of automatic.
-//BEHIND SCENES:
-//  -wait for both users to hit BEGIN to doo any calculating,
-//      check to see if either is manual, if they are
-//-make a group of 3 radio buttons, manual, auto classic, auto quantum 
-//  (maybe a manual quantum as well)
-//-there should be a begin button near them
-//-either when the begin button is clicked, or when a radiobutton
-//    is selected, the appropriateUI should show/hide, meaning the interface
-//    for the manual input or the automatic inputs
-//-MANUAL: now the questions, show the question #/#, show the answer buttons
-//-AUTO C: just a way for them to input what to do in the event of either question
-//-AUTO Q: show them the particle measurement setup
+//-endgame readout:
+//   number of questions
+//   % correct
+//   % correct with optimal quantum strategy
+//   % correct with optimal classical strategy?
+//-when first player finishes game, tell them they are waiting on 2nd player
 
-//simple UI thoughts:
+
+//things to consider:
 //-there should be a simple UI that is for the laymen, but then another one that
 //  it can be set to that is more specific language
-//-refering to the questions as the 1st and 2nd question in a simpler mode and
-//  explaining that you dont know what the question is, you just know that so long
-//  as you do the appropriate answers.
-
-//UI thoughts
-//-game can be played manually or automatically.
-//-if automatically then they can do so classically, by either always
-//    answering the 1st question with a 0 or always with a 1, and the same with
-//    the 2nd question.
-//-however, they can also answer automatically quantumly by automatically measuring
-//  their quantum bit in a specific basis, and using the result of their measurement as
-//  the answer to the corresponding question.
 
 
-//a checkbox that is 'automatically submit answer' determined from question result
-
-//color status
-//join/create
-
-//notes gathered/needs sorted:
-    //once all the questions have been answered, it tells the user who completes first
-    //  that the other is still answering. once both done, they get to see their report
-    //  -once all questions have been answered, set a variable in the db with the questions
-    //    and the answers. before then the variable should be none or null.
-    //  -when new game is started, set the question/answer to none/null
-    //after game is complete, the complete results should be shown, every decision that both
-    //  players made, whether they were right or wrong, percent win
-    //there need not be player to player connection until both players have answered all their questions,
-    //  the player should keep track of all their questions and answers locally, once all questions
-    //  are answered, they can be sent to the server where they are shared with the other player,
-    //  and then both players see the results
 
 
-//new experiment mode:
-//  user has two entangled particles in two measurement devices
-//  the measurement devices can be adjusted, 
-//      showing a live update of % coorelation based on the angles
-//  measurements can be made
 
-//experiment mode: 
-//  Elements
-//    -measurement tools
-//    -chatbox no delay
-//    -beginGame button
-//game mode:
-//  Elements
-//    -measurement tools
-//    -chatbox with delay
-//    -nextQuestion button
-//    -question answer buttons
-//measurement tools:
-//    -createEntangledParticles
-//    -buttons that check either of the two measurements
-//    -readout that says measurement results, once both sets of entangled particles have been tested,
-//        readout also gives %coorelation and shows them what would have happened if they had measured
-//        exactly the same 10,000 times (instead of letting them choose a number of particles)
-//TO THINK ABOUT:
-//  -make the experiment section be set up so that either player has their own entangled pair
-//    and they can slide the dials around with a live update on % coorelation so they can each see how
-//    measuring differently effects things
-
-//next:
-//  make a restart button
-//  things that can be clicked should be white
-//  when 'show particle' is clicked it should add color to lots of stuff, like
-//    the names of the players, the colors of the answer buttons, the knob colors as well
-//  make it so when you create a game it tells you the waiting message in that dialog,
-//    once the other player joins it, the dialog closes and the game begins. we will need
-//    to put that in the 'component did mount' function
-//  CHSH game label at top of screen
-//  number of questions in lower dark area
