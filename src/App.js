@@ -108,6 +108,7 @@ class App extends Component {
     this.createEntanglement = this.createEntanglement.bind(this);
     //this.showHideParticle = this.showHideParticle.bind(this);
     this.doMeasurement = this.doMeasurement.bind(this);
+    //this.getQuantumAnswer = this.getQuantumAnswer.bind(this);
     this.handleIntroChange = this.handleIntroChange.bind(this);
     this.submitQuestionsAndAnswersToFirebase = this.submitQuestionsAndAnswersToFirebase.bind(this);
   }
@@ -300,11 +301,6 @@ class App extends Component {
         }
         this.submitQuestionsAndAnswersToFirebase()
       }else if(this.state.selectedGameType === 'autoQuantum'){
-          
-          //once both players have clicked start
-          //I think either way the first quantum player should use random answers no matter the question,
-          //  but when a second quantum player clicks GO, then their answers are determined based on the already
-          //  posted answers of the first player
         var i
         for (i=0; i<numberOfQuestions; i++){
           if (this.state.listOfQuestions[i] == '0'){
@@ -322,24 +318,67 @@ class App extends Component {
 
   getQuantumAnswer(question,questionNumber){
     var answerToReturn = 0
+    const aliceAKnobValue = this.state.aliceAKnobValue
+    const aliceBKnobValue = this.state.aliceBKnobValue
+    const bobAKnobValue = this.state.bobAKnobValue
+    const bobBKnobValue = this.state.bobBKnobValue
     myObj.transaction(function(currentValue){
-          if (currentValue[myGameRefNum].quantumUsedThisGame == 'false'){
-              answerToReturn = (Math.floor(Math.random() * Math.floor(2)))
-          }else{
+      var updatedValue = currentValue
+          if (currentValue[myGameRefNum].quantumUsedThisGame == 'false' ||
+              currentValue[myGameRefNum].quantumUsedThisGame == myName){
+            updatedValue[myGameRefNum].quantumUsedThisGame = myName
             answerToReturn = (Math.floor(Math.random() * Math.floor(2)))
-            //use other players answers and all 4 measuring devices
-            
+          }else{
+            var myMeasurementAngle = 0
+            var otherUserMeasurementAngle = 0
+            var otherPlayersAnswer = 0
             if (myName === 'Alice'){
-              //get the correlation between the two measuring devices used this question
-              //get the angle of the measurement device that was used for this question
-              //by me(Bob)              this.state.
-              //and by Alice
-              //get the chances that thye are the same
-              //use those chances to randomly select the result
-              //make that result my answerS
+              if (question == '0'){
+                myMeasurementAngle = aliceAKnobValue
+              }else if (question == '1'){
+                myMeasurementAngle = aliceBKnobValue
+              }
+              if (currentValue[myGameRefNum].bobGameQuestions[questionNumber] == '0'){
+                otherUserMeasurementAngle = bobAKnobValue
+              }else{
+                otherUserMeasurementAngle = bobBKnobValue
+              }
+              otherPlayersAnswer = currentValue[myGameRefNum].bobGameAnswers[questionNumber]
+            }else if (myName === 'Bob'){
+              if (question == '0'){
+                myMeasurementAngle = bobAKnobValue
+              }else if (question == '1'){
+                myMeasurementAngle = bobBKnobValue
+              }
+              if (currentValue[myGameRefNum].aliceGameQuestions[questionNumber] == '0'){
+                otherUserMeasurementAngle = aliceAKnobValue
+              }else{
+                otherUserMeasurementAngle = aliceBKnobValue
+              }
+              otherPlayersAnswer = currentValue[myGameRefNum].aliceGameAnswers[questionNumber]
+
             }
+            // console.log('myName',myName)
+            // console.log('otherPlayersAnswer',otherPlayersAnswer)
+            // console.log('myMeasurementAngle',myMeasurementAngle)
+            // console.log('otherMeasurementAngle',otherUserMeasurementAngle)
+            var aliceBobCorrelation = Math.abs(parseFloat(myMeasurementAngle)-parseFloat(otherUserMeasurementAngle))
+            if (aliceBobCorrelation === 0){aliceBobCorrelation = 100}
+            if (aliceBobCorrelation === 22.5){aliceBobCorrelation = 85.3}
+            if (aliceBobCorrelation === 45){aliceBobCorrelation = 50}
+            if (aliceBobCorrelation === 67.5){aliceBobCorrelation = 14.6}
+            if (aliceBobCorrelation === 90){aliceBobCorrelation = 0}  
+            //console.log('aliceBobCorrelation',aliceBobCorrelation)
+        //var myAnswer = 0
+        var randomNum=Math.random()
+              // console.log('randomNum1',randomNum)
+              // console.log('aliceBobCorrelation/100',aliceBobCorrelation/100)
+              if(randomNum < aliceBobCorrelation/100) {answerToReturn = otherPlayersAnswer}
+              else {answerToReturn = (otherPlayersAnswer+1)%2}
+        
             
-          }        
+          } 
+          myObj.set(updatedValue)       
     })  
     return answerToReturn
   }
