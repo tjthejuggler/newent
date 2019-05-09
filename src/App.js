@@ -356,27 +356,16 @@ class App extends Component {
                 otherUserMeasurementAngle = aliceBKnobValue
               }
               otherPlayersAnswer = currentValue[myGameRefNum].aliceGameAnswers[questionNumber]
-
             }
-            // console.log('myName',myName)
-            // console.log('otherPlayersAnswer',otherPlayersAnswer)
-            // console.log('myMeasurementAngle',myMeasurementAngle)
-            // console.log('otherMeasurementAngle',otherUserMeasurementAngle)
             var aliceBobCorrelation = Math.abs(parseFloat(myMeasurementAngle)-parseFloat(otherUserMeasurementAngle))
             if (aliceBobCorrelation === 0){aliceBobCorrelation = 100}
             if (aliceBobCorrelation === 22.5){aliceBobCorrelation = 85.3}
             if (aliceBobCorrelation === 45){aliceBobCorrelation = 50}
             if (aliceBobCorrelation === 67.5){aliceBobCorrelation = 14.6}
             if (aliceBobCorrelation === 90){aliceBobCorrelation = 0}  
-            //console.log('aliceBobCorrelation',aliceBobCorrelation)
-        //var myAnswer = 0
-        var randomNum=Math.random()
-              // console.log('randomNum1',randomNum)
-              // console.log('aliceBobCorrelation/100',aliceBobCorrelation/100)
-              if(randomNum < aliceBobCorrelation/100) {answerToReturn = otherPlayersAnswer}
-              else {answerToReturn = (otherPlayersAnswer+1)%2}
-        
-            
+            var randomNum=Math.random()
+            if(randomNum < aliceBobCorrelation/100) {answerToReturn = otherPlayersAnswer}
+            else {answerToReturn = (otherPlayersAnswer+1)%2}
           } 
           myObj.set(updatedValue)       
     })  
@@ -1003,36 +992,6 @@ class App extends Component {
 
 
 export default App;
-//DO THIS NEXT:
-
-//CLEAN UP NOTES/GET UI IDEAS FROM THEM
-//-hook up the quantum measuring devices up to the automatical question answering
-//    I think we will need to just modify the current function we have that does single measurements
-//-find out which functions are never being used
-
-//-move into more files, use experiment.js as an example
-//-change file/function names, 'experiment.js' is not a good name
-//-Combine onSliderChangeB and onSliderChangeA
-//-make subheaders for different sections
-//-get quantum(auto) working
-//-auto fill number of questions based on selected game type
-//-make enter key submit dialogs
-//  -this is done on the first dialog, copy it to second
-//-if either player does manual, then they choose how many questions will be done 
-//    and we just use the first that many results of automatic.
-//-endgame readout:
-//   number of questions
-//   % correct
-//   % correct with optimal quantum strategy
-//   % correct with optimal classical strategy?
-//-when first player finishes game, tell them they are waiting on 2nd player
-
-
-//things to consider:
-//-there should be a simple UI that is for the laymen, but then another one that
-//  it can be set to that is more specific language
-
-
 
 
 
