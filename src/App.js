@@ -300,6 +300,7 @@ class App extends Component {
         }
         this.submitQuestionsAndAnswersToFirebase()
       }else if(this.state.selectedGameType === 'autoQuantum'){
+          
           //once both players have clicked start
           //I think either way the first quantum player should use random answers no matter the question,
           //  but when a second quantum player clicks GO, then their answers are determined based on the already
@@ -317,6 +318,30 @@ class App extends Component {
       }
 
     })
+  }
+
+  getQuantumAnswer(question,questionNumber){
+    var answerToReturn = 0
+    myObj.transaction(function(currentValue){
+          if (currentValue[myGameRefNum].quantumUsedThisGame == 'false'){
+              answerToReturn = (Math.floor(Math.random() * Math.floor(2)))
+          }else{
+            answerToReturn = (Math.floor(Math.random() * Math.floor(2)))
+            //use other players answers and all 4 measuring devices
+            
+            if (myName === 'Alice'){
+              //get the correlation between the two measuring devices used this question
+              //get the angle of the measurement device that was used for this question
+              //by me(Bob)              this.state.
+              //and by Alice
+              //get the chances that thye are the same
+              //use those chances to randomly select the result
+              //make that result my answerS
+            }
+            
+          }        
+    })  
+    return answerToReturn
   }
 
   createListOfQuestions(){
@@ -641,6 +666,7 @@ class App extends Component {
                           particle: '-1',
                           labClosed: 'false',
                           shouldRestart: 'false',
+                          quantumUsedThisGame: 'false',
                           aliceGameQuestions: [],
                           aliceGameAnswers: [],
                           bobGameQuestions: [],
