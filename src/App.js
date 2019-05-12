@@ -745,6 +745,8 @@ class App extends Component {
                             position: 'fixed', top: 140, left: 332};
     const styleBobName = {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 160, left: 332};
+    const styleGameName = {color:'#404040',fontSize:'12px',
+                            textAlign: 'left'}
     const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
       {display: 'none'} : {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 140, left: 325};
@@ -968,21 +970,25 @@ class App extends Component {
             bobAAngle = {this.state.bobAAngle}
             bobBAngle = {this.state.bobBAngle}
           />
-        </div>
+                   </div>
 
+                </div>
+
+              </div>
+            <div>
+              <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
+              <label style={styleInfoBarRestart} onClick={this.restartClicked}>⟲</label><br></br>
+              <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>       
+              <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
+              <label style={styleGameName}>{myGameName}</label>
+            </div>
+            
           </div>
-        </div>
-      <div>
-        <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
-        <label style={styleInfoBarRestart} onClick={this.restartClicked}>⟲</label><br></br>
-        <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>       
-        <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
-      </div>
-      </div>
+
         <div style={styleHelpContainerVisibility}>
           <div style={HelpContainer}>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
-            </div>
+          </div>
         </div>
       </div>
     );
