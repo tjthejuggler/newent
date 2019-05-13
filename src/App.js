@@ -3,7 +3,8 @@ import './App.css';
 import firebase from 'firebase' 
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css'; 
+import GameType from './gameType.js'
 import QuantumAuto from './quantumAuto.js'
 import IntroDialog from './introDialog.js'
 import QuestionNumDialog from './questionNumDialog.js'
@@ -758,150 +759,122 @@ class App extends Component {
       {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
 
     return (  
-    <div>
-      <IntroDialog  
-          showIntroDialog = {this.state.showIntroDialog}
-          introDialogHeader = {this.state.introDialogHeader}
-          introDialogText = {this.state.introDialogText}
-          displayIntroDialogButtons = {displayIntroDialogButtons}
-          handleIntroChange = {(e,f)=>this.handleIntroChange(e,f)}
-          handleIntroKeyPress = {(e)=>this.handleIntroKeyPress(e)}
-          handleIntroSubmit = {()=>this.handleIntroSubmit()}
-      />
-
-      <QuestionNumDialog  
-          showQuestionNumDialog = {this.state.showQuestionNumDialog}
-          questionNumDialogHeader = {this.state.questionNumDialogHeader}
-          questionNumDialogText = {this.state.questionNumDialogText}
-          handleQuestionNumChange = {(e,f)=>this.handleQuestionNumChange(e,f)}
-          handleQuestionNumKeyPress = {(e)=>this.handleQuestionNumKeyPress(e)}
-          handleQuestionNumSubmit = {()=>this.handleQuestionNumSubmit()}
-      />
-    <div className='InfoBar'>
-      <div className='MainContainer'>
-        <div className='App'>
-          <label className='styleMainHeader'>CHSH</label><br></br><br></br>
-          <div className='gameTypeStyle'>
-            <div className='gameTypeRadioButtonStyle'>
-              <input type="radio" 
-                    value="autoClassic" 
-                    name="gameType"
-                    defaultChecked                
-                    disabled={this.state.radioButtonsDisabled}
-                    onClick={()=>this.gameTypeRadioButtonClicked('autoClassic')}/> Auto (Classic) 
-                    <br></br>
-              <input type="radio" 
-                    value="autoQuantum" 
-                    name="gameType"
-                    disabled={this.state.radioButtonsDisabled}
-                    onClick={()=>this.gameTypeRadioButtonClicked('autoQuantum')}/> Auto (Quantum) 
-                    <br></br>
-            <input type="radio" 
-                    value="manual" 
-                    name="gameType"
-                    disabled={this.state.radioButtonsDisabled}
-                    onClick={()=>this.gameTypeRadioButtonClicked('manual')}/> Manual 
-                    <br></br>
-              
-            </div>
-          
-          <button className='styleBeginButton'
-                  onClick={()=>this.beginButtonClicked()}>{this.state.beginButtonText}</button>
-          </div>
-          <br></br><br></br><br></br>
-        <div style={displayManual}>  
-          <div className='styleSelectedGameType'>
-            <br></br>       
-            <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
-            <label className='styleInfoBarNewGame'>Question #: {currentQuestionIndex} / {numberOfQuestions}</label><br></br>          
-            <button onClick={()=>this.manualGameAnswer(0)}>first answer</button>
-            <button onClick={()=>this.manualGameAnswer(1)}>second answer</button><br></br><br></br>
-          </div>
-        </div>
-        <div style={displayAutoClassic}>  
-          <div className='styleSelectedGameType'>
-            <br></br> 
-              <label>Always answer Q0 with:</label><br></br>                     
-              <div className='autoClassicQuestionRadioButtonStyle'>
-                <input type="radio" 
-                      value="0" 
-                      name="question0"
-                      defaultChecked                
-                      disabled={this.state.radioButtonsDisabled}
-                      onClick={()=>this.autoClassicRadioButtonClicked('0','0')}/> 0 
-                <input type="radio" 
-                      value="1" 
-                      name="question0"
-                      disabled={this.state.radioButtonsDisabled}
-                      onClick={()=>this.autoClassicRadioButtonClicked('0','1')}/> 1            
-              </div>
-              <br></br>
-              <label>Always answer Q1 with:</label><br></br>                     
-              <div className='autoClassicQuestionRadioButtonStyle'>
-                <input type="radio" 
-                      value="0"
-                      name="question1"
-                      defaultChecked                
-                      disabled={this.state.radioButtonsDisabled}
-                      onClick={()=>this.autoClassicRadioButtonClicked('1','0')}/> 0
-                <input type="radio" 
-                      value="1" 
-                      name="question1"
-                      disabled={this.state.radioButtonsDisabled}
-                      onClick={()=>this.autoClassicRadioButtonClicked('1','1')}/> 1             
-              </div>
-              <br></br> 
-          </div>
-        </div>
-          <div className="ag-theme-balham"
-              style={{ height: '400px', width: '250px', display: displayResults }}>
-              <AgGridReact
-                  columnDefs={this.state.columnDefs}
-                  rowData={this.state.resultsGridRowData}>
-              </AgGridReact>
-          </div>
-
-
-        <div className='styleSelectedGameType'>
-
-          <QuantumAuto 
-            expStyle={displayAutoQuantum}
-            particle={myParticle}
-            measurement={myMeasurementResult}
-            doMeasurement={this.doMeasurement}
-            createEntanglement={this.createEntanglement}
-            aliceAKnobValue = {this.state.aliceAKnobValue}
-            aliceBKnobValue = {this.state.aliceBKnobValue}
-            bobAKnobValue = {this.state.bobAKnobValue}
-            bobBKnobValue = {this.state.bobBKnobValue}
-            knobCorrelation = {this.state.knobCorrelation}
-            colorPrimaryA = {myColorPrimaryA}
-            colorSecondaryA = {myColorSecondaryA}
-            colorPrimaryB = {myColorPrimaryB}
-            colorSecondaryB = {myColorSecondaryB}
-            onSliderChangeA = {(e)=>this.onSliderChangeA(e)}
-            onSliderChangeB = {(e)=>this.onSliderChangeB(e)}
-            correlationReadout = {this.state.correlationReadout}
-            aliceAAngle = {this.state.aliceAAngle}
-            aliceBAngle = {this.state.aliceBAngle}
-            bobAAngle = {this.state.bobAAngle}
-            bobBAngle = {this.state.bobBAngle}
-          />
-                   </div>
-
+      <div>
+        <IntroDialog  
+            showIntroDialog = {this.state.showIntroDialog}
+            introDialogHeader = {this.state.introDialogHeader}
+            introDialogText = {this.state.introDialogText}
+            displayIntroDialogButtons = {displayIntroDialogButtons}
+            handleIntroChange = {(e,f)=>this.handleIntroChange(e,f)}
+            handleIntroKeyPress = {(e)=>this.handleIntroKeyPress(e)}
+            handleIntroSubmit = {()=>this.handleIntroSubmit()}
+        />
+        <QuestionNumDialog  
+            showQuestionNumDialog = {this.state.showQuestionNumDialog}
+            questionNumDialogHeader = {this.state.questionNumDialogHeader}
+            questionNumDialogText = {this.state.questionNumDialogText}
+            handleQuestionNumChange = {(e,f)=>this.handleQuestionNumChange(e,f)}
+            handleQuestionNumKeyPress = {(e)=>this.handleQuestionNumKeyPress(e)}
+            handleQuestionNumSubmit = {()=>this.handleQuestionNumSubmit()}
+        />
+        <div className='InfoBar'>
+          <div className='MainContainer'>
+            <div className='App'>
+              <label className='styleMainHeader'>CHSH</label>
+              <br></br><br></br>
+              <GameType
+                radioButtonsDisabled = {this.state.radioButtonsDisabled}
+                gameTypeRadioButtonClicked = {(e)=>this.gameTypeRadioButtonClicked(e)}
+                beginButtonText = {this.state.beginButtonText}
+              />
+              <br></br><br></br><br></br>
+              <div style={displayManual}>  
+                <div className='styleSelectedGameType'>
+                  <br></br>       
+                  <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
+                  <label className='styleInfoBarNewGame'>Question #: {currentQuestionIndex} / {numberOfQuestions}</label><br></br>          
+                  <button onClick={()=>this.manualGameAnswer(0)}>first answer</button>
+                  <button onClick={()=>this.manualGameAnswer(1)}>second answer</button><br></br><br></br>
                 </div>
-
               </div>
-            <div>
-              <label className='styleInfoBarHelp' onClick={this.showHideHelpBox}>?</label><br></br>
-              <label className='styleInfoBarRestart' onClick={this.restartClicked}>⟲</label><br></br>
-              <label className='styleAliceName'>Alice</label><label style={styleAliceNameMarker}>*</label>       
-              <label className='styleBobName'>Bob</label><label style={styleBobNameMarker}>*</label>
-              <label className='styleGameName'>{myGameName}</label>
+              <div style={displayAutoClassic}>  
+                <div className='styleSelectedGameType'>
+                  <br></br> 
+                  <label>Always answer Q0 with:</label>
+                  <br></br>                     
+                  <div className='autoClassicQuestionRadioButtonStyle'>
+                    <input type="radio" 
+                            value="0" 
+                            name="question0"
+                            defaultChecked                
+                            disabled={this.state.radioButtonsDisabled}
+                            onClick={()=>this.autoClassicRadioButtonClicked('0','0')}/> 0 
+                    <input type="radio" 
+                            value="1" 
+                            name="question0"
+                            disabled={this.state.radioButtonsDisabled}
+                            onClick={()=>this.autoClassicRadioButtonClicked('0','1')}/> 1            
+                  </div>
+                  <br></br>
+                  <label>Always answer Q1 with:</label><br></br>                     
+                  <div className='autoClassicQuestionRadioButtonStyle'>
+                    <input type="radio" 
+                          value="0"
+                          name="question1"
+                          defaultChecked                
+                          disabled={this.state.radioButtonsDisabled}
+                          onClick={()=>this.autoClassicRadioButtonClicked('1','0')}/> 0
+                    <input type="radio" 
+                          value="1" 
+                          name="question1"
+                          disabled={this.state.radioButtonsDisabled}
+                          onClick={()=>this.autoClassicRadioButtonClicked('1','1')}/> 1             
+                  </div>
+                  <br></br> 
+                </div>
+              </div>
+              <div className="ag-theme-balham"
+                    style={{ height: '400px', width: '250px', display: displayResults }}>
+                <AgGridReact
+                    columnDefs={this.state.columnDefs}
+                    rowData={this.state.resultsGridRowData}>
+                </AgGridReact>
+              </div>
+              <div className='styleSelectedGameType'>
+                <QuantumAuto 
+                  expStyle={displayAutoQuantum}
+                  particle={myParticle}
+                  measurement={myMeasurementResult}
+                  doMeasurement={this.doMeasurement}
+                  createEntanglement={this.createEntanglement}
+                  aliceAKnobValue = {this.state.aliceAKnobValue}
+                  aliceBKnobValue = {this.state.aliceBKnobValue}
+                  bobAKnobValue = {this.state.bobAKnobValue}
+                  bobBKnobValue = {this.state.bobBKnobValue}
+                  knobCorrelation = {this.state.knobCorrelation}
+                  colorPrimaryA = {myColorPrimaryA}
+                  colorSecondaryA = {myColorSecondaryA}
+                  colorPrimaryB = {myColorPrimaryB}
+                  colorSecondaryB = {myColorSecondaryB}
+                  onSliderChangeA = {(e)=>this.onSliderChangeA(e)}
+                  onSliderChangeB = {(e)=>this.onSliderChangeB(e)}
+                  correlationReadout = {this.state.correlationReadout}
+                  aliceAAngle = {this.state.aliceAAngle}
+                  aliceBAngle = {this.state.aliceBAngle}
+                  bobAAngle = {this.state.bobAAngle}
+                  bobBAngle = {this.state.bobBAngle}
+                />
+              </div>
             </div>
-            
           </div>
-
+          <div>
+            <label className='styleInfoBarHelp' onClick={this.showHideHelpBox}>?</label><br></br>
+            <label className='styleInfoBarRestart' onClick={this.restartClicked}>⟲</label><br></br>
+            <label className='styleAliceName'>Alice</label><label style={styleAliceNameMarker}>*</label>       
+            <label className='styleBobName'>Bob</label><label style={styleBobNameMarker}>*</label>
+            <label className='styleGameName'>{myGameName}</label>
+          </div>
+        </div>
         <div style = {styleHelpContainerVisibility}>
           <div className='HelpContainer'>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
@@ -911,8 +884,6 @@ class App extends Component {
     );
   }
 }
-
-
 
 export default App;
 
