@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
+import './App.css';
 import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
 import Slider, { Range } from './rc-slider-modified';
 import './rc-slider-modified/assets/index.css';
 
-class Experiment extends Component {
+class QuantumAuto extends Component {
 
 
 
     render(){
-
-	const styleKnob = {position: 'absolute', top: '-170px', left: '40px', zIndex:0}
+    	
+console.log('quantumAutoRender')
 
     	return(
 	      <div style={this.props.expStyle}>
@@ -40,25 +41,25 @@ class Experiment extends Component {
     </div>
     <br></br><br></br>
     <div style={{position: 'relative', zIndex:1}}>
-   	<div style={styleKnob}>
+   	<div className = 'styleKnob'>
 	    <Knob fgColor = 'red'
 	    		min='0'
 	            max='360'
 	            value={this.props.aliceAKnobValue}/><br></br>
 	    </div>
-	    <div style={styleKnob}>
+	    <div className = 'styleKnob'>
 	      <Knob fgColor = 'orange'
 	            min='0'
 	            max='360'
 	            value={this.props.aliceBKnobValue}/><br></br>
 	    </div>
-	    <div style={styleKnob}>
+	    <div className = 'styleKnob'>
 	    <Knob fgColor = 'blue'
 	    		min='0'
 	            max='360'
 	            value={parseInt(this.props.bobAKnobValue)}/><br></br>
 	    </div>
-	    <div style={styleKnob}>
+	    <div className = 'styleKnob'>
 	    <Knob fgColor = 'green'
 	           min='0'
 	            max='360'
@@ -94,4 +95,4 @@ class Experiment extends Component {
       )
     }
 }
-export default Experiment
+export default QuantumAuto

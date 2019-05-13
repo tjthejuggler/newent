@@ -4,7 +4,8 @@ import firebase from 'firebase'
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
-import Experiment from './experiment'
+import QuantumAuto from './quantumAuto.js'
+import IntroDialog from './introDialog.js'
 //import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -235,6 +236,7 @@ class App extends Component {
   }
 
   showHideHelpBox(e) {
+    console.log('showHideHelpBox')
     if (this.state.styleHelpContainerVisibility){
       this.setState({styleHelpContainerVisibility: false})
     }else{
@@ -714,8 +716,7 @@ class App extends Component {
     }
         myObj.set(currentLabsList)
           myGameRefNum = currentLabsList.length-1
-      })
-        
+      })        
       console.log("myGameRefNum", myGameRefNum)
       console.log("this.state.myStateLab",this.state.myStateLab)
       myGameName = this.state.myStateLab
@@ -726,121 +727,46 @@ class App extends Component {
         this.setState({introDialogText: '..for the other player to join.'})//this
         this.setState({introDialogHeader: 'Waiting..'})      
         this.setState({displayIntroDialogButtons: false})
-      } 
-
-
-      
+      }       
     if (myName === 'Bob'){
             this.setState({styleAliceNameMarker: true});
             this.setState({styleBobNameMarker: false});
       }
   }
 
-
   render() { 
     const displayAutoQuantum = this.state.displayAutoQuantum ? {} : {display: 'none'};
     const displayAutoClassic = this.state.displayAutoClassic ? {} : {display: 'none'};
     const displayManual = this.state.displayManual ? {} : {display: 'none'} ;
-    // const styleAliceName = {color:'#404040',fontSize:'12px',
-    //                         position: 'fixed', top: 140, left: 332};
-    // const styleBobName = {color:'#404040',fontSize:'12px',
-    //                         position: 'fixed', top: 160, left: 332};
-    // const styleGameName = {color:'#404040',fontSize:'12px',
-    //                         textAlign: 'left'}
     const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
-      {display: 'none'} : {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 140, left: 325};
+      {display: 'none'} : {color:'#404040',
+                          fontSize:'12px',
+                          position: 'fixed',
+                           top: 140, left: 325};
     const styleBobNameMarker = this.state.styleBobNameMarker ? 
-      {display: 'none'} : {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 160, left: 325};
+      {display: 'none'} : {color:'#404040',
+                            fontSize:'12px',
+                            position: 'fixed', 
+                            top: 160, 
+                            left: 325};
     const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
       {display: 'none'} : {};
-    const displayIntroDialogButtons = this.state.displayIntroDialogButtons ? {} : {display: 'none'} ;
-    const gameTypeStyle = {backgroundColor: '#8c8c8c',
-                            padding: '15px',
-                            paddingBottom: '40px'}
-    const gameTypeRadioButtonStyle = {fontSize:'14px',
-                              textAlign:'left',
-                              fontFamily:'Consolas'}
-    const autoClassicQuestionRadioButtonStyle = {fontSize:'14px',
-                              textAlign:'center',
-                              fontFamily:'Consolas'}
-    const beginButtonStyle = {fontSize:'24px',
-                              marginTop: '-10px',
-                              float: 'right',
-                              textAlign:'right',
-                              fontFamily:'Consolas'}
+    const displayIntroDialogButtons = this.state.displayIntroDialogButtons ? 
+    {} : {display: 'none'} ;
     const displayGameMessage = this.state.displayGameMessage ? 
       {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
-    const MainContainer = {padding: "20px",
-                            marginLeft: '-21px',
-                            marginTop: '-21px',
-                            marginRight: '-21px',
-                            backgroundColor: '#bfbfbf',
-                            maxWidth: 250}
 
-  //   const HelpContainer ={padding: "20px",
-  //                         marginLeft: '-21px',
-  //                         marginTop: '-21px',
-  //                         marginRight: '-21px',
-  //                         backgroundColor: '#bfbfbf',
-  //                         maxWidth: 250}
-
-  // const InfoBar={ padding: "10px", 
-  //                 paddingRight: '40px',
-  //                  margin: "40px",
-  //                  backgroundColor: "#8c8c8c",
-  //                  maxWidth: 285}
-
-  // const styleInfoBarHelp={color:'white',
-  //                         position: 'fixed', top: 80, left: 335,
-  //                         fontSize:'32px'}
-
-  // const styleInfoBarRestart={color:'white',
-  //                           position: 'fixed', top: 40, left: 325,
-  //                           fontSize:'32px'}
-
-
-  // const styleInfoBarNewGame={fontSize:'12px',
-  //                            justifyContent: 'center',
-  //                            alignItems: 'center'}
-
-  // const styleMainHeader={color:'#8c8c8c',
-  //                         fontFamily:'Consolas',
-  //                         fontSize:'60px',
-  //                         fontWeight: "bold",
-  //                         float:'top',
-  //                         textAlign:'top'}
-
-  // const styleSelectedGameType={backgroundColor: '#8c8c8c'}
-
-
-    return (
+    return (  
     <div>
-      <Dialog open={this.state.showIntroDialog}
-              aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">{this.state.introDialogHeader}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{this.state.introDialogText}</DialogContentText>
-            <TextField
-              style = {displayIntroDialogButtons}
-              autoFocus
-              ref="myField"
-              margin="dense"
-              id="name"
-              label="Game name:"
-              onChange={this.handleIntroChange}
-              onKeyPress={this.handleIntroKeyPress}
-              fullWidth/>
-        </DialogContent>
-        <DialogActions>
-          <Button style={displayIntroDialogButtons} 
-                  onClick={this.handleIntroSubmit}>Create</Button>
-          <Button style={displayIntroDialogButtons} 
-                  onClick={this.handleIntroSubmit}>Join</Button>
-        </DialogActions>
-      </Dialog>
-
+      <IntroDialog  
+          showIntroDialog = {this.state.showIntroDialog}
+          introDialogHeader = {this.state.introDialogHeader}
+          introDialogText = {this.state.introDialogText}
+          displayIntroDialogButtons = {displayIntroDialogButtons}
+          handleIntroChange = {()=>this.handleIntroChange()}
+          handleIntroKeyPress = {()=>this.handleIntroKeyPress()}
+          handleIntroSubmit = {()=>this.handleIntroSubmit()}
+      />
       <Dialog open={this.state.showQuestionNumDialog}
               aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">{this.state.questionNumDialogHeader}</DialogTitle>
@@ -865,8 +791,8 @@ class App extends Component {
       <div className='MainContainer'>
         <div className='App'>
           <label className='styleMainHeader'>CHSH</label><br></br><br></br>
-          <div style={gameTypeStyle}>
-            <div style={gameTypeRadioButtonStyle}>
+          <div className='gameTypeStyle'>
+            <div className='gameTypeRadioButtonStyle'>
               <input type="radio" 
                     value="autoClassic" 
                     name="gameType"
@@ -889,11 +815,11 @@ class App extends Component {
               
             </div>
           
-          <button style={beginButtonStyle}
+          <button className='styleBeginButton'
                   onClick={()=>this.beginButtonClicked()}>{this.state.beginButtonText}</button>
           </div>
           <br></br><br></br><br></br>
-        <div className='displayManual'>  
+        <div style={displayManual}>  
           <div className='styleSelectedGameType'>
             <br></br>       
             <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
@@ -906,7 +832,7 @@ class App extends Component {
           <div className='styleSelectedGameType'>
             <br></br> 
               <label>Always answer Q0 with:</label><br></br>                     
-              <div style={autoClassicQuestionRadioButtonStyle}>
+              <div className='autoClassicQuestionRadioButtonStyle'>
                 <input type="radio" 
                       value="0" 
                       name="question0"
@@ -921,7 +847,7 @@ class App extends Component {
               </div>
               <br></br>
               <label>Always answer Q1 with:</label><br></br>                     
-              <div style={autoClassicQuestionRadioButtonStyle}>
+              <div className='autoClassicQuestionRadioButtonStyle'>
                 <input type="radio" 
                       value="0"
                       name="question1"
@@ -947,7 +873,8 @@ class App extends Component {
 
 
         <div className='styleSelectedGameType'>
-          <Experiment 
+
+          <QuantumAuto 
             expStyle={displayAutoQuantum}
             particle={myParticle}
             measurement={myMeasurementResult}
@@ -985,7 +912,7 @@ class App extends Component {
             
           </div>
 
-        <div className='styleHelpContainerVisibility'>
+        <div style = {styleHelpContainerVisibility}>
           <div className='HelpContainer'>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
           </div>

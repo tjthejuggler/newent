@@ -104,6 +104,36 @@
   max-width: 285px;
 }
 
+.styleBeginButton{
+  font-size:24px;
+  margin-top: -10px;
+  float: right;
+  text-align:right;
+  font-family:Consolas;
+}
+
+.gameTypeStyle{
+  background-color: #8c8c8c;
+  padding: 15px;
+  padding-bottom: 40px;
+}
+.gameTypeRadioButtonStyle{
+  font-size:14px;
+  text-align:left;
+  font-family:Consolas;
+}
+.autoClassicQuestionRadioButtonStyle{
+  font-size:14px;
+  text-align:center;
+  font-family:Consolas;
+}
+
+.styleKnob{
+  position: absolute; 
+  top: -170px; 
+  left: 40px; 
+  z-index: 0;
+}
 
 @keyframes App-logo-spin {
   from {
