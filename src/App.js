@@ -741,12 +741,12 @@ class App extends Component {
     const displayAutoQuantum = this.state.displayAutoQuantum ? {} : {display: 'none'};
     const displayAutoClassic = this.state.displayAutoClassic ? {} : {display: 'none'};
     const displayManual = this.state.displayManual ? {} : {display: 'none'} ;
-    const styleAliceName = {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 140, left: 332};
-    const styleBobName = {color:'#404040',fontSize:'12px',
-                            position: 'fixed', top: 160, left: 332};
-    const styleGameName = {color:'#404040',fontSize:'12px',
-                            textAlign: 'left'}
+    // const styleAliceName = {color:'#404040',fontSize:'12px',
+    //                         position: 'fixed', top: 140, left: 332};
+    // const styleBobName = {color:'#404040',fontSize:'12px',
+    //                         position: 'fixed', top: 160, left: 332};
+    // const styleGameName = {color:'#404040',fontSize:'12px',
+    //                         textAlign: 'left'}
     const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
       {display: 'none'} : {color:'#404040',fontSize:'12px',
                             position: 'fixed', top: 140, left: 325};
@@ -779,40 +779,40 @@ class App extends Component {
                             backgroundColor: '#bfbfbf',
                             maxWidth: 250}
 
-    const HelpContainer ={padding: "20px",
-                          marginLeft: '-21px',
-                          marginTop: '-21px',
-                          marginRight: '-21px',
-                          backgroundColor: '#bfbfbf',
-                          maxWidth: 250}
+  //   const HelpContainer ={padding: "20px",
+  //                         marginLeft: '-21px',
+  //                         marginTop: '-21px',
+  //                         marginRight: '-21px',
+  //                         backgroundColor: '#bfbfbf',
+  //                         maxWidth: 250}
 
-  const InfoBar={ padding: "10px", 
-                  paddingRight: '40px',
-                   margin: "40px",
-                   backgroundColor: "#8c8c8c",
-                   maxWidth: 285}
+  // const InfoBar={ padding: "10px", 
+  //                 paddingRight: '40px',
+  //                  margin: "40px",
+  //                  backgroundColor: "#8c8c8c",
+  //                  maxWidth: 285}
 
-  const styleInfoBarHelp={color:'white',
-                          position: 'fixed', top: 80, left: 335,
-                          fontSize:'32px'}
+  // const styleInfoBarHelp={color:'white',
+  //                         position: 'fixed', top: 80, left: 335,
+  //                         fontSize:'32px'}
 
-  const styleInfoBarRestart={color:'white',
-                            position: 'fixed', top: 40, left: 325,
-                            fontSize:'32px'}
+  // const styleInfoBarRestart={color:'white',
+  //                           position: 'fixed', top: 40, left: 325,
+  //                           fontSize:'32px'}
 
 
-  const styleInfoBarNewGame={fontSize:'12px',
-                             justifyContent: 'center',
-                             alignItems: 'center'}
+  // const styleInfoBarNewGame={fontSize:'12px',
+  //                            justifyContent: 'center',
+  //                            alignItems: 'center'}
 
-  const styleMainHeader={color:'#8c8c8c',
-                          fontFamily:'Consolas',
-                          fontSize:'60px',
-                          fontWeight: "bold",
-                          float:'top',
-                          textAlign:'top'}
+  // const styleMainHeader={color:'#8c8c8c',
+  //                         fontFamily:'Consolas',
+  //                         fontSize:'60px',
+  //                         fontWeight: "bold",
+  //                         float:'top',
+  //                         textAlign:'top'}
 
-  const selectedGameTypeStyle={backgroundColor: '#8c8c8c'}
+  // const styleSelectedGameType={backgroundColor: '#8c8c8c'}
 
 
     return (
@@ -861,10 +861,10 @@ class App extends Component {
           </DialogActions>
       </Dialog>
 
-    <div style={InfoBar}>
-      <div style={MainContainer}>
-        <div className="App">
-          <label style={styleMainHeader}>CHSH</label><br></br><br></br>
+    <div className='InfoBar'>
+      <div className='MainContainer'>
+        <div className='App'>
+          <label className='styleMainHeader'>CHSH</label><br></br><br></br>
           <div style={gameTypeStyle}>
             <div style={gameTypeRadioButtonStyle}>
               <input type="radio" 
@@ -893,17 +893,17 @@ class App extends Component {
                   onClick={()=>this.beginButtonClicked()}>{this.state.beginButtonText}</button>
           </div>
           <br></br><br></br><br></br>
-        <div style={displayManual}>  
-          <div style={selectedGameTypeStyle}>
+        <div className='displayManual'>  
+          <div className='styleSelectedGameType'>
             <br></br>       
             <label>Question: {this.state.listOfQuestions[currentQuestionIndex]}</label><br></br>
-            <label style={styleInfoBarNewGame}>Question #: {currentQuestionIndex} / {numberOfQuestions}</label><br></br>          
+            <label className='styleInfoBarNewGame'>Question #: {currentQuestionIndex} / {numberOfQuestions}</label><br></br>          
             <button onClick={()=>this.manualGameAnswer(0)}>first answer</button>
             <button onClick={()=>this.manualGameAnswer(1)}>second answer</button><br></br><br></br>
           </div>
         </div>
         <div style={displayAutoClassic}>  
-          <div style={selectedGameTypeStyle}>
+          <div className='styleSelectedGameType'>
             <br></br> 
               <label>Always answer Q0 with:</label><br></br>                     
               <div style={autoClassicQuestionRadioButtonStyle}>
@@ -946,7 +946,7 @@ class App extends Component {
           </div>
 
 
-        <div style = {selectedGameTypeStyle}>
+        <div className='styleSelectedGameType'>
           <Experiment 
             expStyle={displayAutoQuantum}
             particle={myParticle}
@@ -976,17 +976,17 @@ class App extends Component {
 
               </div>
             <div>
-              <label style={styleInfoBarHelp} onClick={this.showHideHelpBox}>?</label><br></br>
-              <label style={styleInfoBarRestart} onClick={this.restartClicked}>⟲</label><br></br>
-              <label style={styleAliceName}>Alice</label><label style={styleAliceNameMarker}>*</label>       
-              <label style={styleBobName}>Bob</label><label style={styleBobNameMarker}>*</label>
-              <label style={styleGameName}>{myGameName}</label>
+              <label className='styleInfoBarHelp' onClick={this.showHideHelpBox}>?</label><br></br>
+              <label className='styleInfoBarRestart' onClick={this.restartClicked}>⟲</label><br></br>
+              <label className='styleAliceName'>Alice</label><label style={styleAliceNameMarker}>*</label>       
+              <label className='styleBobName'>Bob</label><label style={styleBobNameMarker}>*</label>
+              <label className='styleGameName'>{myGameName}</label>
             </div>
             
           </div>
 
-        <div style={styleHelpContainerVisibility}>
-          <div style={HelpContainer}>
+        <div className='styleHelpContainerVisibility'>
+          <div className='HelpContainer'>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
           </div>
         </div>

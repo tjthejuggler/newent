@@ -23,6 +23,88 @@
   color: #61dafb;
 }
 
+.styleMainHeader{
+  color: #8c8c8c;
+  font-family: Consolas;
+  font-size: 60px;
+  font-weight:  bold;
+  float: top;
+  text-align: top;
+}
+
+.styleInfoBarHelp{
+  color: white;
+  position: fixed;
+  top: 80px; 
+  left: 335px;
+  font-size:32px;
+}
+
+.styleInfoBarRestart{
+  color: white ;
+  position:  fixed ; 
+  top: 40px; 
+  left: 325px;
+  font-size: 32px;
+}
+
+
+.styleInfoBarNewGame{
+  font-size: 12px ;
+ justify-content: center;
+ align-items: center;
+}
+
+.styleSelectedGameType{
+  background-color: #8c8c8c;
+}
+
+.styleAliceName{
+  color: #404040 ;
+  font-size: 12px ;
+  position:  fixed ;
+  top: 140px;
+  left: 332px;
+}
+.styleBobName{
+  color:#404040;
+  font-size:12px;
+  position: fixed;
+  top: 160px;
+  left: 332px;
+}
+.styleGameName{
+  color:#404040;
+  font-size:12px;
+  text-align: left;
+}
+
+.MainContainer{
+  padding: 20px;
+  margin-left: -21px;
+  margin-top: -21px;
+  margin-right: -21px;
+  background-color: #bfbfbf;
+  max-width: 250px;
+}
+
+.HelpContainer{
+  padding: 20px;
+  margin-left: -21px;
+  margin-top: -21px;
+  margin-right: -21px;
+  background-color: #bfbfbf;
+  max-width: 250px;
+}
+.InfoBar{
+  padding: 10px; 
+  padding-right: 40px;
+  margin: 40px;
+  background-color: #8c8c8c;
+  max-width: 285px;
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
