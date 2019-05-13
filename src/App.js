@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import QuantumAuto from './quantumAuto.js'
 import IntroDialog from './introDialog.js'
+import QuestionNumDialog from './questionNumDialog.js'
 //import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -763,30 +764,19 @@ class App extends Component {
           introDialogHeader = {this.state.introDialogHeader}
           introDialogText = {this.state.introDialogText}
           displayIntroDialogButtons = {displayIntroDialogButtons}
-          handleIntroChange = {()=>this.handleIntroChange()}
-          handleIntroKeyPress = {()=>this.handleIntroKeyPress()}
+          handleIntroChange = {(e,f)=>this.handleIntroChange(e,f)}
+          handleIntroKeyPress = {(e)=>this.handleIntroKeyPress(e)}
           handleIntroSubmit = {()=>this.handleIntroSubmit()}
       />
-      <Dialog open={this.state.showQuestionNumDialog}
-              aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">{this.state.questionNumDialogHeader}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{this.state.questionNumDialogText}</DialogContentText>
-            <TextField
-              autoFocus
-              ref="myField"
-              margin="dense"
-              id="number"
-              label="Number of questions:"
-              onChange={this.handleQuestionNumChange}
-              onKeyPress={this.handleQuestionNumKeyPress}
-              fullWidth/>
-        </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleQuestionNumSubmit}>OK</Button>
-          </DialogActions>
-      </Dialog>
 
+      <QuestionNumDialog  
+          showQuestionNumDialog = {this.state.showQuestionNumDialog}
+          questionNumDialogHeader = {this.state.questionNumDialogHeader}
+          questionNumDialogText = {this.state.questionNumDialogText}
+          handleQuestionNumChange = {(e,f)=>this.handleQuestionNumChange(e,f)}
+          handleQuestionNumKeyPress = {(e)=>this.handleQuestionNumKeyPress(e)}
+          handleQuestionNumSubmit = {()=>this.handleQuestionNumSubmit()}
+      />
     <div className='InfoBar'>
       <div className='MainContainer'>
         <div className='App'>

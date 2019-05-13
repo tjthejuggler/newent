@@ -26,8 +26,8 @@ class IntroDialog extends Component {
               margin="dense"
               id="name"
               label="Game name:"
-              onChange={()=>this.props.handleIntroChange()}
-              onKeyPress={()=>this.props.handleIntroKeyPress()}
+              onChange={(e,f)=>this.props.handleIntroChange(e,f)}
+              onKeyPress={(e)=>this.props.handleIntroKeyPress(e)}
               fullWidth/>
         </DialogContent>
         <DialogActions>
