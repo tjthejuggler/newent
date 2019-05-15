@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import './App.css';
 
-class GameType extends Component {
+class GameTypeBox extends Component {
 
     render(){
 
@@ -44,4 +44,4 @@ class GameType extends Component {
 
 }
 
-export default GameType
+export default GameTypeBox

@@ -27,7 +27,7 @@ class QuestionNumDialog extends Component {
               id="number"
               label="Number of questions:"
               onChange={(e)=>this.props.handleQuestionNumChange(e)}
-              onKeyPress={()=>this.props.handleQuestionNumKeyPress()}
+              onKeyPress={(e)=>this.props.handleQuestionNumKeyPress(e)}
               fullWidth/>
         </DialogContent>
           <DialogActions>

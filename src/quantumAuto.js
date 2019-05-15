@@ -9,9 +9,6 @@ class QuantumAuto extends Component {
 
 
     render(){
-    	
-console.log('quantumAutoRender')
-
     	return(
 	      <div style={this.props.expStyle}>
 	      <br></br>
