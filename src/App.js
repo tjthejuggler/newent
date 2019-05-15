@@ -90,6 +90,7 @@ class App extends Component {
       aliceBAngle: '0',
       bobAAngle: '0',
       bobBAngle: '0',
+      correctCounter: 0,
       columnDefs: [{headerName: 'AQ', field: 'aliceQ', width:45},
                     {headerName: 'BQ', field: 'bobQ', width:45},
                     {headerName: 'AA', field: 'aliceA', width:45},
@@ -190,6 +191,7 @@ class App extends Component {
     if (this.state.selectedGameType === 'manual'){
       this.setState({displayManual: false})
     }
+    this.setState({correctCounter:0})
     current_mode = 'Classic Game'
     displayResults = 'none'
     currentQuestionIndex = 0
@@ -582,6 +584,7 @@ class App extends Component {
                                         result: currentResult   })
                       }
                   console.log('correctCounter',correctCounter)
+                  this.setState({correctCounter:correctCounter})
                   this.setState({resultsGridRowData: gridData}) 
                 }
               }           
@@ -714,6 +717,7 @@ class App extends Component {
                 radioButtonsDisabled = {this.state.radioButtonsDisabled}
                 autoClassicRadioButtonClicked = {()=>this.autoClassicRadioButtonClicked}
                 displayResults = {displayResults}
+                correctCounter = {this.state.correctCounter}
                 columnDefs = {this.state.columnDefs}
                 resultsGridRowData = {this.state.resultsGridRowData}
                 expStyle={displayAutoQuantum}

@@ -54,6 +54,7 @@ class GameInputBox extends Component {
                   <br></br> 
                 </div>
               </div>
+              Correct: {this.props.correctCounter}
               <div className="ag-theme-balham"
                     style={{ height: '400px', width: '250px', display: this.props.displayResults }}>
                 <AgGridReact
