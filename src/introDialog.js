@@ -19,22 +19,23 @@ class IntroDialog extends Component {
         <DialogTitle id="form-dialog-title">{this.props.introDialogHeader}</DialogTitle>
         <DialogContent>
           <DialogContentText>{this.props.introDialogText}</DialogContentText>
-            <TextField
-              style = {this.props.displayIntroDialogButtons}
-              autoFocus
-              ref="myField"
-              margin="dense"
-              id="name"
-              label="Game name:"
-              onChange={(e,f)=>this.props.handleIntroChange(e,f)}
-              onKeyPress={(e)=>this.props.handleIntroKeyPress(e)}
-              fullWidth/>
+          	{this.props.displayIntroDialogButtons ?
+	            <TextField
+	              autoFocus
+	              ref="myField"
+	              margin="dense"
+	              id="name"
+	              label="Game name:"
+	              onChange={(e,f)=>this.props.handleIntroChange(e,f)}
+	              onKeyPress={(e)=>this.props.handleIntroKeyPress(e)}
+	              fullWidth/> :''}
         </DialogContent>
         <DialogActions>
-          <Button style={this.props.displayIntroDialogButtons} 
-                  onClick={()=>this.props.handleIntroSubmit()}>Create</Button>
-          <Button style={this.props.displayIntroDialogButtons} 
-                  onClick={()=>this.props.handleIntroSubmit()}>Join</Button>
+        {this.props.displayIntroDialogButtons ?
+        <div>
+	        <Button onClick={()=>this.props.handleIntroSubmit()}>Create</Button>
+	        <Button onClick={()=>this.props.handleIntroSubmit()}>Join</Button> 
+        </div>:''}
         </DialogActions>
       </Dialog>
       )

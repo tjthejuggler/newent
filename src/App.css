@@ -73,6 +73,21 @@
   top: 160px;
   left: 332px;
 }
+
+.styleAliceNameMarker{
+  color:#404040;
+  font-size:12px;
+  position: fixed;
+  top: 140px;
+  left: 325px;
+}
+.styleBobNameMarker{
+  color:#404040;
+  font-size:12px;
+  position: fixed; 
+  top: 160px; 
+  left: 325px;
+}
 .styleGameName{
   color:#404040;
   font-size:12px;

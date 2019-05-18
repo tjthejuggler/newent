@@ -62,14 +62,13 @@ class App extends Component {
       displayAutoQuantum: false,
       displayAutoClassic: true,
       displayManual: false,
-      styleAliceNameMarker: false,
-      styleBobNameMarker:true,
-      styleHelpContainerVisibility:true,
+      displayAliceNameMarker: false,
+      displayBobNameMarker:true,
+      displayHelpContainerVisibility:false,
       showIntroDialog: true,
       showQuestionNumDialog: false,
       displayIntroDialogButtons: true,
       gameMessage: '',
-      displayGameMessage: false,
       introDialogHeader: 'Create or Join',
       introDialogText: 'This game requires two players each with their own device.'+ 
                   'The first player creates a game, and the second joins.',
@@ -223,10 +222,10 @@ class App extends Component {
   }
 
   showHideHelpBox(e) {
-    if (this.state.styleHelpContainerVisibility){
-      this.setState({styleHelpContainerVisibility: false})
+    if (this.state.displayHelpContainerVisibility){
+      this.setState({displayHelpContainerVisibility: false})
     }else{
-      this.setState({styleHelpContainerVisibility: true})
+      this.setState({displayHelpContainerVisibility: true})
     }
   }
 
@@ -551,14 +550,10 @@ class App extends Component {
                 if (myName === 'Alice' && labs[myGameRefNum].aliceGameAnswers
                    && !labs[myGameRefNum].bobGameAnswers){
                         this.setState({displayManual:false})
-                        this.setState({gameMessage:'Waiting for Bob to finish'})
-                        this.setState({displayGameMessage:true})                        
                 }
                 if (myName === 'Bob' && labs[myGameRefNum].bobGameAnswers
                    && !labs[myGameRefNum].aliceGameAnswers){
                         this.setState({displayManual:false});
-                        this.setState({gameMessage:'Waiting for Alice to finish'});
-                        this.setState({displayGameMessage:true});
                 }
               if (labs[myGameRefNum].aliceGameAnswers && labs[myGameRefNum].bobGameAnswers){
                   displayResults = null
@@ -649,39 +644,18 @@ class App extends Component {
     })
       this.restartClicked()
       this.setState({showIntroDialog: false})
-      this.setState({styleAliceNameMarker: true});
-      this.setState({styleBobNameMarker: false});
+      this.setState({displayAliceNameMarker: true});
+      this.setState({displayBobNameMarker: false});
   }  
 
   render() { 
-    const displayAutoQuantum = this.state.displayAutoQuantum ? {} : {display: 'none'};
-    const displayAutoClassic = this.state.displayAutoClassic ? {} : {display: 'none'};
-    const displayManual = this.state.displayManual ? {} : {display: 'none'} ;
-    const styleAliceNameMarker = this.state.styleAliceNameMarker ? 
-      {display: 'none'} : {color:'#404040',
-                          fontSize:'12px',
-                          position: 'fixed',
-                           top: 140, left: 325};
-    const styleBobNameMarker = this.state.styleBobNameMarker ? 
-      {display: 'none'} : {color:'#404040',
-                            fontSize:'12px',
-                            position: 'fixed', 
-                            top: 160, 
-                            left: 325};
-    const styleHelpContainerVisibility = this.state.styleHelpContainerVisibility ? 
-      {display: 'none'} : {};
-    const displayIntroDialogButtons = this.state.displayIntroDialogButtons ? 
-    {} : {display: 'none'} ;
-    const displayGameMessage = this.state.displayGameMessage ? 
-      {fontFamily:'Consolas',color:'black'} : {display: 'none'} ;
-
     return (  
       <div>
         <IntroDialog  
             showIntroDialog = {this.state.showIntroDialog}
             introDialogHeader = {this.state.introDialogHeader}
             introDialogText = {this.state.introDialogText}
-            displayIntroDialogButtons = {displayIntroDialogButtons}
+            displayIntroDialogButtons = {this.state.displayIntroDialogButtons}
             handleIntroChange = {(e,f)=>this.handleIntroChange(e,f)}
             handleIntroKeyPress = {(e)=>this.handleIntroKeyPress(e)}
             handleIntroSubmit = {()=>this.handleIntroSubmit()}
@@ -708,19 +682,19 @@ class App extends Component {
               <br></br><br></br><br></br>
 
               <GameInputBox 
-                displayManual = {displayManual}
+                displayManual = {this.state.displayManual}
                 currentQuestion = {this.state.listOfQuestions[currentQuestionIndex]}
                 manualGameAnswer = {(e)=>this.manualGameAnswer(e)}
                 currentQuestionIndex = {currentQuestionIndex} 
                 numberOfQuestions = {numberOfQuestions}
-                displayAutoClassic = {displayAutoClassic}
+                displayAutoClassic = {this.state.displayAutoClassic}
                 radioButtonsDisabled = {this.state.radioButtonsDisabled}
                 autoClassicRadioButtonClicked = {()=>this.autoClassicRadioButtonClicked}
                 displayResults = {displayResults}
                 correctCounter = {this.state.correctCounter}
                 columnDefs = {this.state.columnDefs}
                 resultsGridRowData = {this.state.resultsGridRowData}
-                expStyle={displayAutoQuantum}
+                dispAutoQuantum = {this.state.displayAutoQuantum}
                 particle={myParticle}
                 measurement={myMeasurementResult}
                 doMeasurement={this.doMeasurement}
@@ -746,16 +720,19 @@ class App extends Component {
           <div>
             <label className='styleInfoBarHelp' onClick={this.showHideHelpBox}>?</label><br></br>
             <label className='styleInfoBarRestart' onClick={this.restartClicked}>⟲</label><br></br>
-            <label className='styleAliceName'>Alice</label><label style={styleAliceNameMarker}>*</label>       
-            <label className='styleBobName'>Bob</label><label style={styleBobNameMarker}>*</label>
+            <label className='styleAliceName'>Alice</label>
+            {this.state.displayAliceNameMarker ? <label className='styleAliceNameMarker'>*</label> : ''}     
+            <label className='styleBobName'>Bob</label>
+            {this.state.displayBobNameMarker ? <label className='styleBobNameMarker'>*</label> : ''} 
             <label className='styleGameName'>{myGameName}</label>
           </div>
         </div>
-        <div style = {styleHelpContainerVisibility}>
+        {this.state.displayHelpContainerVisibility?
           <div className='HelpContainer'>
             <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
           </div>
-        </div>
+        : ''}
+       
       </div>
     );
   }

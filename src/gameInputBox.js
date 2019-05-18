@@ -9,16 +9,15 @@ class GameInputBox extends Component {
     render(){
       return(
             <div>
-              <div style={this.props.displayManual}>  
+              {this.props.displayManual?
                 <div className='styleSelectedGameType'>
                   <br></br>       
                   <label>Question: {this.props.currentQuestion}</label><br></br>
                   <label className='styleInfoBarNewGame'>Question #: {this.props.currentQuestionIndex} / {this.props.numberOfQuestions}</label><br></br>          
                   <button onClick={()=>this.props.manualGameAnswer(0)}>first answer</button>
                   <button onClick={()=>this.props.manualGameAnswer(1)}>second answer</button><br></br><br></br>
-                </div>
-              </div>
-              <div style={this.props.displayAutoClassic}>  
+                </div> :''}
+              {this.props.displayAutoClassic ? 
                 <div className='styleSelectedGameType'>
                   <br></br> 
                   <label>Always answer Q0 with:</label>
@@ -52,8 +51,7 @@ class GameInputBox extends Component {
                           onClick={()=>this.autoClassicRadioButtonClicked('1','1')}/> 1             
                   </div>
                   <br></br> 
-                </div>
-              </div>
+                </div> : ''}              
               Correct: {this.props.correctCounter}
               <div className="ag-theme-balham"
                     style={{ height: '400px', width: '250px', display: this.props.displayResults }}>
@@ -63,8 +61,8 @@ class GameInputBox extends Component {
                 </AgGridReact>
               </div>
               <div className='styleSelectedGameType'>
-                <QuantumAuto 
-                  expStyle={this.props.expStyle}
+                {this.props.dispAutoQuantum ? 
+                  <QuantumAuto 
                   particle={this.props.particle}
                   measurement={this.props.measurement}
                   doMeasurement={this.doMeasurement}
@@ -84,7 +82,11 @@ class GameInputBox extends Component {
                   aliceBAngle = {this.props.aliceBAngle}
                   bobAAngle = {this.props.bobAAngle}
                   bobBAngle = {this.props.bobBAngle}
-                />
+                />: ''}        
+        
+
+
+
               </div>
             </div>
 
