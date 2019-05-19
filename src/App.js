@@ -696,7 +696,7 @@ class App extends Component {
                 numberOfQuestions = {numberOfQuestions}
                 displayAutoClassic = {this.state.displayAutoClassic}
                 radioButtonsDisabled = {this.state.radioButtonsDisabled}
-                autoClassicRadioButtonClicked = {()=>this.autoClassicRadioButtonClicked}
+                autoClassicRadioButtonClicked = {(e,f)=>this.autoClassicRadioButtonClicked(e,f)}
                 displayResults = {displayResults}
                 correctCounter = {this.state.correctCounter}
                 columnDefs = {this.state.columnDefs}

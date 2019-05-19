@@ -43,12 +43,12 @@ class GameInputBox extends Component {
                           name="question1"
                           defaultChecked                
                           disabled={this.props.radioButtonsDisabled}
-                          onClick={()=>this.autoClassicRadioButtonClicked('1','0')}/> 0
+                          onClick={()=>this.props.autoClassicRadioButtonClicked('1','0')}/> 0
                     <input type="radio" 
                           value="1" 
                           name="question1"
                           disabled={this.props.radioButtonsDisabled}
-                          onClick={()=>this.autoClassicRadioButtonClicked('1','1')}/> 1             
+                          onClick={()=>this.props.autoClassicRadioButtonClicked('1','1')}/> 1             
                   </div>
                   <br></br> 
                 </div> : ''}              
