@@ -88,10 +88,17 @@
   top: 160px; 
   left: 325px;
 }
+.styleGameNameWrapper{
+  margin-bottom: -30px;
+}
 .styleGameName{
   color:#404040;
   font-size:12px;
   text-align: left;
+  margin-bottom: -130px;
+}
+.gameTypeHeader{
+  font-size:20px;
 }
 
 .MainContainer{

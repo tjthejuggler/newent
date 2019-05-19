@@ -673,6 +673,9 @@ class App extends Component {
             <div className='App'>
               <label className='styleMainHeader'>CHSH</label>
               <br></br><br></br>
+              <div className = 'gameTypeHeader'>
+                Answer input method:
+              </div>
               <GameTypeBox
                 radioButtonsDisabled = {this.state.radioButtonsDisabled}
                 gameTypeRadioButtonClicked = {(e)=>this.gameTypeRadioButtonClicked(e)}
@@ -680,7 +683,11 @@ class App extends Component {
                 beginButtonClicked = {()=>this.beginButtonClicked()}
               />
               <br></br><br></br><br></br>
-
+              <div className = 'gameTypeHeader'>
+                {this.state.selectedGameType == 'autoClassic' ? 'Auto (classic)' : ''}
+                {this.state.selectedGameType == 'autoQuantum' ? 'Auto (quantum)' : ''}
+                {this.state.selectedGameType == 'manual' ? 'Manual' : ''}
+              </div>
               <GameInputBox 
                 displayManual = {this.state.displayManual}
                 currentQuestion = {this.state.listOfQuestions[currentQuestionIndex]}
@@ -723,13 +730,16 @@ class App extends Component {
             <label className='styleAliceName'>Alice</label>
             {this.state.displayAliceNameMarker ? <label className='styleAliceNameMarker'>*</label> : ''}     
             <label className='styleBobName'>Bob</label>
-            {this.state.displayBobNameMarker ? <label className='styleBobNameMarker'>*</label> : ''} 
-            <label className='styleGameName'>{myGameName}</label>
+            {this.state.displayBobNameMarker ? <label className='styleBobNameMarker'>*</label> : ''}
+            <div className='styleGameNameWrapper'/>
+            <span>
+              <label className='styleGameName'>Game name: {myGameName}</label>
+            </span>
           </div>
         </div>
         {this.state.displayHelpContainerVisibility?
           <div className='HelpContainer'>
-            <label>Game Name: {myGameName} ------My Name: {myName} ------Scientist count: {scientistCount}</label><br></br>   
+            <label>This will be the help section</label><br></br>   
           </div>
         : ''}
        
