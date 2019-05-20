@@ -203,6 +203,7 @@ class App extends Component {
         updatedLabList[myGameRefNum].bobGameQuestions = []
         updatedLabList[myGameRefNum].bobGameAnswers = []
         updatedLabList[myGameRefNum].numberOfQuestions = 0
+        updatedLabList[myGameRefNum].quantumUsedThisGame = 'false'
       }
       if (updatedLabList[myGameRefNum].shouldRestart == 'false'){
         updatedLabList[myGameRefNum].shouldRestart = 'true'
@@ -382,36 +383,14 @@ class App extends Component {
     })
   }
 
-  onSliderChangeB (value)  {
-    var angle = '0'
-    if (value == '10'){angle='360'}
-    if (value == '30'){angle='337.5'}
-    if (value == '50'){angle='315'}
-    if (value == '70'){angle='292.5'}
-    if (value == '90'){angle='270'}
-    if (myName === 'Alice'){
-      this.setState({aliceBKnobValue: angle}, function () {
-            this.setCorrelationReadout()
-            this.setState({aliceBAngle: 360-parseFloat(angle)})
-        });
-      myObj.transaction(function(currentValue){
-        var updatedLabList = currentValue
-        updatedLabList[myGameRefNum].aliceBKnobValue = angle;
-        myObj.set(updatedLabList)
-      })
-    }else{
-      this.setState({bobBKnobValue: angle}, function () {
-            this.setCorrelationReadout()
-            this.setState({bobBAngle: 360-parseFloat(angle)})
-        });
-      myObj.transaction(function(currentValue){
-        var updatedLabList = currentValue
-        updatedLabList[myGameRefNum].bobBKnobValue = angle;
-        myObj.set(updatedLabList)
-      })
-    }
+  onSliderChangeA (value)  {
+    this.onSliderChange('A',value)
   }
-    onSliderChangeA (value)  {
+
+  onSliderChangeB (value)  {
+    this.onSliderChange('B',value)
+  }
+    onSliderChange (slider, value)  {
     var angle = '0'
     if (value == '10'){angle='360'}
     if (value == '30'){angle='337.5'}
@@ -419,25 +398,49 @@ class App extends Component {
     if (value == '70'){angle='292.5'}
     if (value == '90'){angle='270'}
     if (myName === 'Alice'){
-      this.setState({aliceAKnobValue: angle}, function () {
-            this.setCorrelationReadout()
-            this.setState({aliceAAngle: 360-parseFloat(angle)})
-        });
-      myObj.transaction(function(currentValue){
-        var updatedLabList = currentValue
-        updatedLabList[myGameRefNum].aliceAKnobValue = angle;
-        myObj.set(updatedLabList)
-      })
-    }else{
-      this.setState({bobAKnobValue: angle}, function () {
-            this.setCorrelationReadout()
-            this.setState({bobAAngle: 360-parseFloat(angle)})
-        });
-      myObj.transaction(function(currentValue){
-        var updatedLabList = currentValue
-        updatedLabList[myGameRefNum].bobAKnobValue = angle;
-        myObj.set(updatedLabList)
-      })
+      if (slider === 'A'){
+          this.setState({aliceAKnobValue: angle}, function () {
+              this.setCorrelationReadout()
+              this.setState({aliceAAngle: 360-parseFloat(angle)})
+          });
+          myObj.transaction(function(currentValue){
+              var updatedLabList = currentValue
+              updatedLabList[myGameRefNum].aliceAKnobValue = angle;
+              myObj.set(updatedLabList)
+          })
+      }else if (slider === 'B'){
+          this.setState({aliceBKnobValue: angle}, function () {
+              this.setCorrelationReadout()
+              this.setState({aliceBAngle: 360-parseFloat(angle)})
+          });
+          myObj.transaction(function(currentValue){
+              var updatedLabList = currentValue
+              updatedLabList[myGameRefNum].aliceBKnobValue = angle;
+              myObj.set(updatedLabList)
+          })
+      }
+    }else if (myName === 'Bob'){
+        if (slider === 'A'){
+          this.setState({bobAKnobValue: angle}, function () {
+                this.setCorrelationReadout()
+                this.setState({bobAAngle: 360-parseFloat(angle)})
+            });
+          myObj.transaction(function(currentValue){
+            var updatedLabList = currentValue
+            updatedLabList[myGameRefNum].bobAKnobValue = angle;
+            myObj.set(updatedLabList)
+          })
+        }else if (slider === 'B'){
+          this.setState({bobBKnobValue: angle}, function () {
+                this.setCorrelationReadout()
+                this.setState({bobBAngle: 360-parseFloat(angle)})
+            });
+          myObj.transaction(function(currentValue){
+              var updatedLabList = currentValue
+              updatedLabList[myGameRefNum].bobBKnobValue = angle;
+              myObj.set(updatedLabList)
+          })
+       }
     }
   } 
     setCorrelationReadout(){

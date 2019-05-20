@@ -1,14 +1,10 @@
 DO THIS NEXT:
--label the gameType section as well as the section where you choose the gameType
 -make the help blurb
 
 
 CLEAN UP NOTES/GET UI IDEAS FROM THEM
--make help explanation
 -find out which functions are never being used, get rid of them
 -combine the really similar functions
--move into more files, use experiment.js as an example
--change file/function names, 'experiment.js' is not a good name
 -Combine onSliderChangeB and onSliderChangeA
 -make subheaders for different sections
 -get quantum(auto) working

@@ -6,6 +6,9 @@ import './rc-slider-modified/assets/index.css';
 
 class QuantumAuto extends Component {
 
+	emptyFunctionToAvoidError(){
+		console.log('...')
+	}
 
 
     render(){
@@ -39,27 +42,31 @@ class QuantumAuto extends Component {
     <br></br><br></br>
     <div style={{position: 'relative', zIndex:1}}>
    	<div className = 'styleKnob'>
-	    <Knob fgColor = 'red'
-	    		min='0'
-	            max='360'
+	    <Knob //onChange = {this.emptyFunctionToAvoidError()}
+	    		fgColor = 'red'
+	    		min={0}
+	            max={360}
 	            value={this.props.aliceAKnobValue}/><br></br>
 	    </div>
 	    <div className = 'styleKnob'>
-	      <Knob fgColor = 'orange'
-	            min='0'
-	            max='360'
+	      <Knob //onChange = {this.emptyFunctionToAvoidError()}
+	      		fgColor = 'orange'
+	            min={0}
+	            max={360}
 	            value={this.props.aliceBKnobValue}/><br></br>
 	    </div>
 	    <div className = 'styleKnob'>
-	    <Knob fgColor = 'blue'
-	    		min='0'
-	            max='360'
+	    <Knob 	//onChange = {this.emptyFunctionToAvoidError()}
+	    		fgColor = 'blue'
+	    		min={0}
+	            max={360}
 	            value={parseInt(this.props.bobAKnobValue)}/><br></br>
 	    </div>
 	    <div className = 'styleKnob'>
-	    <Knob fgColor = 'green'
-	           min='0'
-	            max='360'
+	    <Knob //onChange = {this.emptyFunctionToAvoidError()}
+	    		fgColor = 'green'
+	           min={0}
+	            max={360}
 	            value={parseInt(this.props.bobBKnobValue)}/><br></br>
 	    </div> 
 	    <div style={{position: 'relative', zIndex:11}}> 
