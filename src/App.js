@@ -116,7 +116,7 @@ class App extends Component {
       updatedLabList[myGameRefNum].labClosed = 'true'
       myObj.set(updatedLabList)
     })
-}
+  }
     setupBeforeUnloadListener = () => {
         window.addEventListener("beforeunload", (ev) => {
             ev.preventDefault();
@@ -172,7 +172,6 @@ class App extends Component {
         shouldCreateGame = true
       }
     })
-
       if (shouldJoinGame){
           this.joinGame()
       }
