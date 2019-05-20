@@ -32,14 +32,6 @@
   text-align: top;
 }
 
-.styleInfoBarHelp{
-  color: white;
-  position: fixed;
-  top: 80px; 
-  left: 335px;
-  font-size:32px;
-}
-
 .styleInfoBarRestart{
   color: white ;
   position:  fixed ; 
@@ -48,15 +40,12 @@
   font-size: 32px;
 }
 
-
-.styleInfoBarNewGame{
-  font-size: 12px ;
- justify-content: center;
- align-items: center;
-}
-
-.styleSelectedGameType{
-  background-color: #8c8c8c;
+.styleInfoBarHelp{
+  color: white;
+  position: fixed;
+  top: 80px; 
+  left: 335px;
+  font-size:32px;
 }
 
 .styleAliceName{
@@ -88,6 +77,65 @@
   top: 160px; 
   left: 325px;
 }
+
+.styleInfoBarRestartWithHelpShown{
+  color: white ;
+  position:  fixed ; 
+  top: 240px; 
+  left: 325px;
+  font-size: 32px;
+}
+
+.styleInfoBarHelpWithHelpShown{
+  color: white;
+  position: fixed;
+  top: 280px; 
+  left: 335px;
+  font-size:32px;
+}
+
+.styleAliceNameWithHelpShown{
+  color: #404040 ;
+  font-size: 12px ;
+  position:  fixed ;
+  top: 340px;
+  left: 332px;
+}
+.styleBobNameWithHelpShown{
+  color:#404040;
+  font-size:12px;
+  position: fixed;
+  top: 360px;
+  left: 332px;
+}
+
+.styleAliceNameMarkerWithHelpShown{
+  color:#404040;
+  font-size:12px;
+  position: fixed;
+  top: 340px;
+  left: 325px;
+}
+.styleBobNameMarkerWithHelpShown{
+  color:#404040;
+  font-size:12px;
+  position: fixed; 
+  top: 360px; 
+  left: 325px;
+}
+
+
+.styleCurrentQuestionNum{
+  font-size: 12px ;
+ justify-content: center;
+ align-items: center;
+}
+
+.styleSelectedGameType{
+  background-color: #8c8c8c;
+}
+
+
 .styleGameNameWrapper{
   margin-bottom: -30px;
 }
@@ -112,11 +160,9 @@
 
 .HelpContainer{
   padding: 20px;
-  margin-left: -21px;
-  margin-top: -21px;
-  margin-right: -21px;
+  margin: 30px;
   background-color: #bfbfbf;
-  max-width: 250px;
+  max-width: 305px;
 }
 .InfoBar{
   padding: 10px; 

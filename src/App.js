@@ -668,6 +668,13 @@ class App extends Component {
             handleQuestionNumKeyPress = {(e)=>this.handleQuestionNumKeyPress(e)}
             handleQuestionNumSubmit = {()=>this.handleQuestionNumSubmit()}
         />
+        {this.state.displayHelpContainerVisibility?
+          <div className='HelpContainer'>
+            <label>This will be the help section I am ranting to see how the text wrap situation works
+            if i just keep tpfjd hdiufh udhfsiuahf uisdufh uhsd fuihiusdhfu o uhfu haih usdhf iuh h sdiufuh ah</label>
+            <br></br><br></br>
+          </div>
+        : ''}
         <div className='InfoBar'>
           <div className='MainContainer'>
             <div className='App'>
@@ -725,23 +732,29 @@ class App extends Component {
             </div>
           </div>
           <div>
-            <label className='styleInfoBarHelp' onClick={this.showHideHelpBox}>?</label><br></br>
-            <label className='styleInfoBarRestart' onClick={this.restartClicked}>⟲</label><br></br>
-            <label className='styleAliceName'>Alice</label>
-            {this.state.displayAliceNameMarker ? <label className='styleAliceNameMarker'>*</label> : ''}     
-            <label className='styleBobName'>Bob</label>
-            {this.state.displayBobNameMarker ? <label className='styleBobNameMarker'>*</label> : ''}
+            <label className = 
+              {this.state.displayHelpContainerVisibility ? 'styleInfoBarHelpWithHelpShown':'styleInfoBarHelp'} 
+              onClick={this.showHideHelpBox}>?</label><br></br>
+            <label className =
+            {this.state.displayHelpContainerVisibility ? 'styleInfoBarRestartWithHelpShown':'styleInfoBarRestart'} 
+            onClick={this.restartClicked}>⟲</label><br></br>
+            <label className =
+            {this.state.displayHelpContainerVisibility ? 'styleAliceNameWithHelpShown':'styleAliceName'}>Alice</label>
+            {this.state.displayAliceNameMarker ? <label className =
+            {this.state.displayHelpContainerVisibility ? 'styleAliceNameMarkerWithHelpShown':'styleAliceNameMarker'}>
+            *</label> : ''}     
+            <label className =
+            {this.state.displayHelpContainerVisibility ? 'styleBobNameWithHelpShown':'styleBobName'}>Bob</label>
+            {this.state.displayBobNameMarker ? <label className =
+            {this.state.displayHelpContainerVisibility ? 'styleBobNameMarkerWithHelpShown':'styleBobNameMarker'}>
+            *</label> : ''}
             <div className='styleGameNameWrapper'/>
             <span>
               <label className='styleGameName'>Game name: {myGameName}</label>
             </span>
           </div>
         </div>
-        {this.state.displayHelpContainerVisibility?
-          <div className='HelpContainer'>
-            <label>This will be the help section</label><br></br>   
-          </div>
-        : ''}
+
        
       </div>
     );

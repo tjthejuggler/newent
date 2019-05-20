@@ -13,7 +13,7 @@ class GameInputBox extends Component {
                 <div className='styleSelectedGameType'>
                   <br></br>       
                   <label>Question: {this.props.currentQuestion}</label><br></br>
-                  <label className='styleInfoBarNewGame'>Question #: {this.props.currentQuestionIndex} / {this.props.numberOfQuestions}</label><br></br>          
+                  <label className='styleCurrentQuestionNum'>Question #: {this.props.currentQuestionIndex} / {this.props.numberOfQuestions}</label><br></br>          
                   <button onClick={()=>this.props.manualGameAnswer(0)}>first answer</button>
                   <button onClick={()=>this.props.manualGameAnswer(1)}>second answer</button><br></br><br></br>
                 </div> :''}
