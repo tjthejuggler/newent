@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import Knob from './modifiedKnob';//make this like experiment with the modified react-canvas-knob
-import Slider, { Range } from './rc-slider-modified';
-import './rc-slider-modified/assets/index.css';
+import Slider, { Range } from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 class QuantumAuto extends Component {
 

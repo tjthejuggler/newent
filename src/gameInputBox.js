@@ -20,7 +20,7 @@ class GameInputBox extends Component {
               {this.props.displayAutoClassic ? 
                 <div className='styleSelectedGameType'>
                   <br></br> 
-                  <label>Always answer Q0 with:</label>
+                  <label>Always answer Question A with:</label>
                   <br></br>                     
                   <div className='autoClassicQuestionRadioButtonStyle'>
                     <input type="radio" 
@@ -36,7 +36,7 @@ class GameInputBox extends Component {
                             onClick={()=>this.props.autoClassicRadioButtonClicked('0','1')}/> 1            
                   </div>
                   <br></br>
-                  <label>Always answer Q1 with:</label><br></br>                     
+                  <label>Always answer Question B with:</label><br></br>                     
                   <div className='autoClassicQuestionRadioButtonStyle'>
                     <input type="radio" 
                           value="0"

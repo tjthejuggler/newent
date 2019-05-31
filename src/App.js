@@ -672,8 +672,22 @@ class App extends Component {
         />
         {this.state.displayHelpContainerVisibility?
           <div className='HelpContainer'>
-            <label>This will be the help section I am ranting to see how the text wrap situation works
-            if i just keep tpfjd hdiufh udhfsiuahf uisdufh uhsd fuihiusdhfu o uhfu haih usdhf iuh h sdiufuh ah</label>
+            <label>CHSH is a cooperative game for two players. Either player will receive a question(A or B). There are four different 
+            possible combinations of questions (AB, BA, AA, BB), the correct answer is dependent on both their questions. If
+            both players receive question B (BB), they must give different answers from each other, one must give 0 
+            and the other must give 1 (01, 10). In the event of any of the remaining 3 possible combinations of questions(AB, BA, AA),
+            the players must answer with the same answer, either both 0s or both 1s (00, 11).
+            </label><br/><br/>
+            <label>This particular instance of the CHSH game has three ways which it can be played: Manually, Automatic Classicaly,
+            Automatic Quantumly. In the manual version, either player will be given a question, and they provide the answer. In the
+            automatic classic version, they decide before the game begins which answer they will use for either possible question,
+            this is so that a game with many questions can be quickly played. In the Automatic Quantum version either player gets
+            one of two entangled quantum particles to use in determining how to answer, in order to do this set the the orientation
+            of their two measurement devices. There is one meaurement device for either of the two questions(A and B), when a question
+            is asked, the appropriate measurement device is used, the result of the measurement is automatically used as the answer
+            to that question. The nature of the measurement devices are that if both players measure their particle in the same orientation,
+            they will always get the same answer. If their devices are at 90 degrees from each other, they will always get different
+            answers. Any angle in between 0 and 90 degrees gives a corresponding chance that the anwer will be the same or different.</label>
             <br></br><br></br>
           </div>
         : ''}
