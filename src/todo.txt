@@ -1,5 +1,7 @@
 DO THIS NEXT:
--make the help blurb
+-test enough to find bugs
+-make the help blurb better
+	-give it collapsable sections
 -auto fill number of questions based on selected game type
 -when first player finishes game, tell them they are waiting on 2nd player
 -endgame readout:
@@ -16,3 +18,5 @@ things to consider:
 -if either player does manual, then they choose how many questions will be done 
     and we just use the first that many results of automatic.
 
+
+    

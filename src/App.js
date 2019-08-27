@@ -16,6 +16,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+console.log('begin')
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 
   {//testing get stuff again
@@ -625,7 +626,8 @@ class App extends Component {
       this.setState({introDialogText: '..for the other player to join.'})//this
       this.setState({introDialogHeader: 'Waiting..'})      
       this.setState({displayIntroDialogButtons: false})
-     
+      //THIS NEEDS REMOVED WHEN NOT TESTING
+     this.setState({showIntroDialog: false})
 
   }
 
@@ -649,6 +651,9 @@ class App extends Component {
       this.setState({displayAliceNameMarker: true});
       this.setState({displayBobNameMarker: false});
   }  
+  closeHelp=()=>{
+    this.setState({displayHelpContainerVisibility: false})
+  }
 
   render() { 
     return (  
@@ -672,25 +677,41 @@ class App extends Component {
         />
         {this.state.displayHelpContainerVisibility?
           <div className='HelpContainer'>
-            <label>CHSH is a cooperative game for two players. Either player will receive a question(A or B). There are four different 
-            possible combinations of questions (AB, BA, AA, BB), the correct answer is dependent on both their questions. If
-            both players receive question B (BB), they must give different answers from each other, one must give 0 
-            and the other must give 1 (01, 10). In the event of any of the remaining 3 possible combinations of questions(AB, BA, AA),
-            the players must answer with the same answer, either both 0s or both 1s (00, 11).
+            <Button style={{float:'right',fontSize:'24px'}} onClick={this.showHideHelpBox}>X</Button><br/><br/>
+            <label>CHSH is a cooperative game to be played by two players. Players are to have no
+            communication during the game so as to not share their questions or answers. Either
+            player will receive one of two possible questions, question A or question B. Therefore, four
+            combinations of questions are possible: both players get A(AA), both players get B(BB), 
+            player 1 gets A and player 2 gets B(AB), player 1 gets B and player 2 gets A(BA). 
+            Similarly to the two possible questions, there are two possible answers, 0 or 1, and 
+            as such there are four possible combinations of answers - 00, 11, 01, 10. Determining 
+            whether or not the players have answered correctly is done as follows: If both players 
+            receive question B (BB), they must give different answers from each other, one must 
+            give 0 and the other must give 1(01, 10). In the event of any of the remaining 3 possible
+            combinations of questions(AB, BA, AA), the players must answer with the same answer, 
+            either both 0s or both 1s (00, 11).
             </label><br/><br/>
-            <label>This particular instance of the CHSH game has three ways which it can be played: Manually, Automatic Classicaly,
-            Automatic Quantumly. In the manual version, either player will be given a question, and they provide the answer. In the
-            automatic classic version, they decide before the game begins which answer they will use for either possible question,
-            this is so that a game with many questions can be quickly played. In the Automatic Quantum version either player gets
-            one of two entangled quantum particles to use in determining how to answer, in order to do this set the the orientation
-            of their two measurement devices. There is one meaurement device for either of the two questions(A and B), when a question
-            is asked, the appropriate measurement device is used, the result of the measurement is automatically used as the answer
-            to that question. The nature of the measurement devices are that if both players measure their particle in the same orientation,
-            they will always get the same answer. If their devices are at 90 degrees from each other, they will always get different
-            answers. Any angle in between 0 and 90 degrees gives a corresponding chance that the anwer will be the same or different.</label>
+            <label>This particular instance of the CHSH game has three ways which it can be 
+            played: Manually, auto (classic), and auto (quantum). In the manual version,
+            either player will be given each of their questions one at a time until they have answered
+            all questions, once both players have finished, they are shown the result. In the
+            auto (classic) version, players decide before the game begins which answer 
+            they will use for either possible question, this is so that a game with many 
+            questions can be quickly played. In the auto (quantum) version either player gets
+            one of two measurable entangled quantum particles to use in determining how to answer, in 
+            order to do this, they set the orientation of their two measurement devices. 
+            There is one meaurement device for either of the two questions(A and B), when 
+            a question is asked, the appropriate measurement device is used, the result of 
+            the measurement is automatically used as the answer to that question. The nature 
+            of the measurement devices are that if both players measure their particle in 
+            the same orientation, they will always get the same answer. If their devices are
+            at 90 degrees from each other, they will always get different answers. Any angle 
+            in between 0 and 90 degrees gives a corresponding chance that the anwer will be 
+            the same or different.</label><br/><br/>
+            <label>nothing</label>
             <br></br><br></br>
           </div>
-        : ''}
+        : 
         <div className='InfoBar'>
           <div className='MainContainer'>
             <div className='App'>
@@ -707,9 +728,9 @@ class App extends Component {
               />
               <br></br><br></br><br></br>
               <div className = 'gameTypeHeader'>
+                {this.state.selectedGameType == 'manual' ? 'Manual' : ''}
                 {this.state.selectedGameType == 'autoClassic' ? 'Auto (classic)' : ''}
                 {this.state.selectedGameType == 'autoQuantum' ? 'Auto (quantum)' : ''}
-                {this.state.selectedGameType == 'manual' ? 'Manual' : ''}
               </div>
               <GameInputBox 
                 displayManual = {this.state.displayManual}
@@ -769,7 +790,7 @@ class App extends Component {
               <label className='styleGameName'>Game name: {myGameName}</label>
             </span>
           </div>
-        </div>
+        </div>}
 
        
       </div>
