@@ -16,7 +16,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-console.log('begin2')
+console.log('begin3')
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 
   {//testing get stuff again
