@@ -1,4 +1,3 @@
-DO THIS NEXT:
 -test enough to find bugs
 -make the help blurb better
 	-give it collapsable sections
