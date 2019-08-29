@@ -16,6 +16,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+//to publish on heroku:
+//  -npm run build
+//  -git add .
+//  -git commit -m"memo
+//  -git push
+//  -make sure there is some service pinging it regularly so it doesnt fall asleep
 console.log('begin3')
 //to run this on local host, use 'npm start' in cmd
 const fbConfig = 

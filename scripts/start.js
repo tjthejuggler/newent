@@ -94,7 +94,6 @@ checkBrowsers(paths.appPath, isInteractive)
       urls,
       useYarn,
       useTypeScript,
-      webpack,
     });
     // Load proxy config
     const proxySetting = require(paths.appPackageJson).proxy;
