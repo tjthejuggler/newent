@@ -581,8 +581,10 @@ class App extends Component {
                       currentResult = 'right'
                       correctCounter++
                     }
-                        gridData.push({ aliceQ: aliceQuestions[i], 
-                                        bobQ: bobQuestions[i], 
+                      const aliceQuestionLetter = aliceQuestions[i]==0?'A':'B'
+                      const bobQuestionLetter = bobQuestions[i]==0?'A':'B'
+                        gridData.push({ aliceQ: aliceQuestionLetter, 
+                                        bobQ: bobQuestionLetter, 
                                         aliceA: aliceAnswers[i], 
                                         bobA: bobAnswers[i],
                                         result: currentResult   })
@@ -714,7 +716,6 @@ class App extends Component {
             at 90 degrees from each other, they will always get different answers. Any angle 
             in between 0 and 90 degrees gives a corresponding chance that the anwer will be 
             the same or different.</label><br/><br/>
-            <label>nothing</label>
             <br></br><br></br>
           </div>
         : 
