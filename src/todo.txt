@@ -1,3 +1,7 @@
+-fix buttons on help screen
+-make a counter that keeps track of how many times people make labs
+-in a lab, make whatever a player does affect the other players lab
+
 -test enough to find bugs
 -make the help blurb better
 	-give it collapsable sections
